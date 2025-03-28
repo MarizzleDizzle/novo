@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Meine App</title>
+</head>
+<body>
+  <h1>Frontend mit Backend</h1>
+  <button onclick="ladeNutzer()">Nutzer laden</button>
+  <ul id="nutzer-liste"></ul>
+
+  <script>
+    async function ladeNutzer() {
+      const res = await fetch('/users');
+      const data = await res.json();
+      const liste = document.getElementById('nutzer-liste');
+      liste.innerHTML = '';
+      data.users.forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = `${user.name} (${user.email})`;
+        liste.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
