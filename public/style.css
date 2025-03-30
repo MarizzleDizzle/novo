@@ -1,0 +1,54 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+  }
+  
+  header {
+    background: #006ab6;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  nav a {
+    color: white;
+    margin-left: 1rem;
+    text-decoration: none;
+  }
+  
+  .hero {
+    text-align: center;
+    padding: 3rem;
+    background-image: url('images/strand.jpg');
+    background-size: cover;
+    color: white;
+  }
+  
+  .apartments {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    padding: 2rem;
+  }
+  
+  .apartment-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .impressum {
+    padding: 2rem;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ccc;
+    margin-top: 2rem;
+  }
+  
+  .impressum h2 {
+    color: #006ab6;
+  }

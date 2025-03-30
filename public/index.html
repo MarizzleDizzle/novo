@@ -2,25 +2,62 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Meine App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movo – Move and Go</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Frontend mit Backend</h1>
-  <button onclick="ladeNutzer()">Nutzer laden</button>
-  <ul id="nutzer-liste"></ul>
+  <header>
+    <div class="logo">Movo</div>
+    <nav>
+      <a href="#">Start</a>
+      <a href="#">Ferienwohnungen</a>
+      <a href="#">Kontakt</a>
+    </nav>
+  </header>
 
-  <script>
-    async function ladeNutzer() {
-      const res = await fetch('/users');
-      const data = await res.json();
-      const liste = document.getElementById('nutzer-liste');
-      liste.innerHTML = '';
-      data.users.forEach(user => {
-        const li = document.createElement('li');
-        li.textContent = `${user.name} (${user.email})`;
-        liste.appendChild(li);
-      });
-    }
-  </script>
+  <section class="hero">
+    <h1>Move and Go – Entdecke dein nächstes Urlaubszuhause</h1>
+    <input type="text" placeholder="Reiseziel eingeben..." />
+    <button>Jetzt suchen</button>
+  </section>
+
+  <section class="apartments" id="wohnungen">
+    <!-- Hier erscheinen die Karten -->
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Movo – Move and Go</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <section class="impressum" id="impressum">
+    <h2>Impressum</h2>
+    <p>Angaben gemäß § 5 TMG</p>
+    
+    <p><strong>Movo – Move and Go</strong><br>
+    Dein Vor- und Nachname (oder Firmenname)<br>
+    Straße Hausnummer<br>
+    PLZ Ort<br>
+    Deutschland</p>
+    
+    <p><strong>Kontakt:</strong><br>
+    Telefon: +49 (0)123 4567890<br>
+    E-Mail: info@movo.de</p>
+    
+    <p><strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</strong><br>
+    Dein Vor- und Nachname (oder Firmenname)<br>
+    Straße Hausnummer<br>
+    PLZ Ort</p>
+    
+    <p><strong>Haftungsausschluss:</strong><br>
+    Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
+  
+    <p><strong>Urheberrecht:</strong><br>
+    Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Beiträge Dritter sind als solche gekennzeichnet. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.</p>
+  </section>
 </body>
+<footer>
+    <p>&copy; 2025 Movo – Move and Go | <a href="#impressum">Impressum</a></p>
+  </footer>
 </html>

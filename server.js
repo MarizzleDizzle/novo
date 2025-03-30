@@ -1,13 +1,18 @@
 const express = require('express');
+const path = require('path');
+const db = require('./db/database');
 const app = express();
 const port = 3000;
 
-// Statische Dateien bereitstellen (Frontend)
-app.use(express.static('public'));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Beispiel-API-Route
-app.get('/users', (req, res) => {
-  res.json({ users: [{ name: 'Max', email: 'max@example.com' }] });
+// Beispielroute: Alle Apartments abrufen
+app.get('/api/apartments', (req, res) => {
+  db.all('SELECT * FROM apartments', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ apartments: rows });
+  });
 });
 
 app.listen(port, () => {
