@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movo – Move and Go</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Movo – Move and Go</h1>
+  <h2>Registrierung</h2>
+  <form id="registerForm">
+    <input type="text" id="name" placeholder="Name" required>
+    <input type="email" id="email" placeholder="E-Mail" required>
+    <input type="password" id="password" placeholder="Passwort" required>
+    <select id="role">
+      <option value="customer">Kunde</option>
+      <option value="provider">Anbieter</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button type="submit">Registrieren</button>
+  </form>
+
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="E-Mail" required>
+    <input type="password" id="loginPassword" placeholder="Passwort" required>
+    <button type="submit">Einloggen</button>
+  </form>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const role = document.getElementById('role').value;
+
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role })
+      });
+
+      const result = await response.json();
+      alert(result.message);
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const result = await response.json();
+      if (result.error) {
+        alert(result.error);
+      } else {
+        alert(`Willkommen ${result.user.name}!`);
+      }
+    });
+  </script>
+</body>
+</html>

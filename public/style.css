@@ -52,3 +52,16 @@ body {
   .impressum h2 {
     color: #006ab6;
   }
+
+  button {
+    padding: 10px 20px;
+    background-color: #006ab6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #004a8a;
+  }
