@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mein Dashboard | Movo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">Movo</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Start</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="apartments.html">Ferienwohnungen</a>
+          </li>
+        </ul>
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown">
+            <img src="https://via.placeholder.com/40" alt="Profilbild" class="rounded-circle me-2">
+            <span>Max Mustermann</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="user-dashboard.html"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+            <li><a class="dropdown-item" href="user-bookings.html"><i class="fas fa-calendar-alt me-2"></i> Buchungen</a></li>
+            <li><a class="dropdown-item" href="user-profile.html"><i class="fas fa-user me-2"></i> Profil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Abmelden</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Content -->
+  <div class="container-fluid py-4">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-lg-3 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex flex-column align-items-center text-center mb-4">
+              <img src="https://via.placeholder.com/150" alt="Profilbild" class="rounded-circle mb-3" width="100">
+              <h5>Max Mustermann</h5>
+              <p class="text-muted mb-1">Mitglied seit: Mai 2023</p>
+            </div>
+            
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" href="user-dashboard.html">
+                  <i class="fas fa-tachometer-alt me-2"></i> Übersicht
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="user-bookings.html">
+                  <i class="fas fa-calendar-alt me-2"></i> Meine Buchungen
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="user-wishlist.html">
+                  <i class="fas fa-heart me-2"></i> Wunschliste
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="user-profile.html">
+                  <i class="fas fa-user me-2"></i> Profil bearbeiten
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="user-settings.html">
+                  <i class="fas fa-cog me-2"></i> Einstellungen
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <i class="fas fa-sign-out-alt me-2"></i> Abmelden
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2>Willkommen zurück, Max!</h2>
+          <a href="apartments.html" class="btn btn-primary">Neue Wohnung suchen</a>
+        </div>
+        
+        <!-- Upcoming Bookings -->
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Deine nächsten Reisen</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Wohnung</th>
+                    <th>Datum</th>
+                    <th>Preis</th>
+                    <th>Status</th>
+                    <th>Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <a href="apartment.html?id=1" class="d-flex align-items-center">
+                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" width="60" class="rounded me-3">
+                        <span>Moderne Wohnung in Berlin</span>
+                      </a>
+                    </td>
+                    <td>15.06. - 22.06.2023</td>
+                    <td>623€</td>
+                    <td><span class="badge bg-success">Bestätigt</span></td>
+                    <td>
+                      <a href="#" class="btn btn-sm btn-outline-primary">Details</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="apartment.html?id=2" class="d-flex align-items-center">
+                        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" width="60" class="rounded me-3">
+                        <span>Ferienhaus am See</span>
+                      </a>
+                    </td>
+                    <td>10.08. - 20.08.2023</td>
+                    <td>1.200€</td>
+                    <td><span class="badge bg-warning text-dark">Bezahlung ausstehend</span></td>
+                    <td>
+                      <a href="#" class="btn btn-sm btn-outline-primary">Bezahlen</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="text-end">
+              <a href="user-bookings.html" class="btn btn-sm btn-primary">Alle Buchungen anzeigen</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recommendations -->
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Empfehlungen für dich</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                  <img src="https://images.unsplash.com/photo-1565538810643-b5bdb714032a?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" class="card-img-top" alt="...">
+                  <div class="card-body">
+                    <h5 class="card-title">Romantisches Häuschen im Schwarzwald</h5>
+                    <p class="card-text text-muted">Schönau im Schwarzwald</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="price">95€ <small class="text-muted">/ Nacht</small></span>
+                      <span class="rating"><i class="fas fa-star"></i> 4.9</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                  <img src="https://images.unsplash.com/photo-1582719471383-c3ec6b9e3c0f?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" class="card-img-top" alt="...">
+                  <div class="card-body">
+                    <h5 class="card-title">Stilvolle Wohnung in Hamburg</h5>
+                    <p class="card-text text-muted">Hamburg-Altona</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="price">110€ <small class="text-muted">/ Nacht</small></span>
+                      <span class="rating"><i class="fas fa-star"></i> 4.7</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                  <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" class="card-img-top" alt="...">
+                  <div class="card-body">
+                    <h5 class="card-title">Luxus-Apartment in München</h5>
+                    <p class="card-text text-muted">München-Schwabing</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="price">180€ <small class="text-muted">/ Nacht</small></span>
+                      <span class="rating"><i class="fas fa-star"></i> 4.8</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white py-4">
+    <div class="container text-center">
+      <p class="mb-0">&copy; 2025 Movo – Move and Go | <a href="#impressum" class="text-white">Impressum</a></p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
