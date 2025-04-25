@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrieren | Movo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">Movo</a>
+    </div>
+  </nav>
+
+  <!-- Registration Section -->
+  <section class="py-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          <div class="card shadow">
+            <div class="card-body p-5">
+              <h2 class="text-center mb-4">Konto erstellen</h2>
+              
+              <!-- Registration Form -->
+              <form id="registerForm">
+                <div class="mb-3">
+                  <label class="form-label">Ich möchte mich registrieren als:</label>
+                  <div class="d-flex gap-3">
+                    <div class="form-check flex-grow-1">
+                      <input class="form-check-input" type="radio" name="role" id="roleGuest" value="guest" checked>
+                      <label class="form-check-label w-100 p-3 border rounded" for="roleGuest">
+                        <i class="fas fa-user fa-2x mb-2 d-block text-center"></i>
+                        <span class="d-block text-center">Gast</span>
+                        <small class="d-block text-center text-muted">Ferienwohnungen mieten</small>
+                      </label>
+                    </div>
+                    <div class="form-check flex-grow-1">
+                      <input class="form-check-input" type="radio" name="role" id="roleHost" value="host">
+                      <label class="form-check-label w-100 p-3 border rounded" for="roleHost">
+                        <i class="fas fa-home fa-2x mb-2 d-block text-center"></i>
+                        <span class="d-block text-center">Anbieter</span>
+                        <small class="d-block text-center text-muted">Wohnungen vermieten</small>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="regEmail" class="form-label">E-Mail-Adresse</label>
+                  <input type="email" class="form-control" id="regEmail" required>
+                </div>
+                <div class="mb-3">
+                  <label for="regPassword" class="form-label">Passwort</label>
+                  <input type="password" class="form-control" id="regPassword" required>
+                  <div class="form-text">Mindestens 8 Zeichen</div>
+                </div>
+                <div class="mb-4">
+                  <label for="regPasswordConfirm" class="form-label">Passwort bestätigen</label>
+                  <input type="password" class="form-control" id="regPasswordConfirm" required>
+                </div>
+                
+                <div class="form-check mb-4">
+                  <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                  <label class="form-check-label" for="agreeTerms">
+                    Ich akzeptiere die <a href="agb.html">AGB</a> und die <a href="datenschutz.html">Datenschutzbestimmungen</a>
+                  </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Registrieren</button>
+                
+                <div class="text-center">
+                  <p class="mb-0">Bereits registriert? <a href="login.html" class="text-primary">Anmelden</a></p>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white py-4">
+    <div class="container text-center">
+      <p class="mb-0">&copy; 2025 Movo – Move and Go | <a href="#impressum" class="text-white">Impressum</a></p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Registration form handling
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Validate passwords match
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regPasswordConfirm').value;
+      
+      if (password !== confirmPassword) {
+        alert('Passwörter stimmen nicht überein!');
+        return;
+      }
+      
+      // In a real app, send to server
+      alert('Registrierung erfolgreich! Eine Bestätigungs-E-Mail wurde versendet.');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

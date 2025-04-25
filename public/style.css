@@ -1,54 +1,148 @@
-body {
-    font-family: sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #f4f4f4;
-  }
-  
-  header {
-    background: #006ab6;
-    color: white;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  nav a {
-    color: white;
-    margin-left: 1rem;
-    text-decoration: none;
-  }
-  
-  .hero {
-    text-align: center;
-    padding: 3rem;
-    background-image: url('images/strand.jpg');
-    background-size: cover;
-    color: white;
-  }
-  
-  .apartments {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
-    padding: 2rem;
-  }
-  
-  .apartment-card {
-    background: white;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
+:root {
+  --primary: #006ab6;
+  --secondary: #00a896;
+  --accent: #ff7e5f;
+  --light: #f8f9fa;
+  --dark: #333333;
+  --gray: #6c757d;
+}
 
-  .impressum {
-    padding: 2rem;
-    background-color: #f9f9f9;
-    border-top: 1px solid #ccc;
-    margin-top: 2rem;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--dark);
+  line-height: 1.6;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background-color: #005a9c;
+  border-color: #005a9c;
+}
+
+.btn-accent {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.btn-accent:hover {
+  background-color: #e66d50;
+  border-color: #e66d50;
+  color: white;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+              url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+  background-size: cover;
+  background-position: center;
+  padding: 5rem 0;
+}
+
+.search-box {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Apartment Cards */
+.apartment-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.apartment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.price {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.rating {
+  color: #ffc107;
+}
+
+/* Features */
+.feature-icon {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+/* Testimonials */
+.testimonial {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.testimonial img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+/* Forms */
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(0, 106, 182, 0.25);
+}
+
+/* Navbar */
+.navbar {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+  font-weight: 500;
+}
+
+/* Utility Classes */
+.bg-accent-light {
+  background-color: rgba(255, 126, 95, 0.1);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 3rem 0;
   }
   
+
+  .display-4 {
+    font-size: 2.5rem;
+  }
+}
+
   .impressum h2 {
     color: #006ab6;
   }
@@ -65,3 +159,4 @@ body {
   button:hover {
     background-color: #004a8a;
   }
+
