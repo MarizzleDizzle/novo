@@ -9,13 +9,45 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Navigation (same as index.html) -->
+  <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <!-- ... same navigation as index.html ... -->
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">Movo</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Start</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="apartments.html">Ferienwohnungen</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="host.html">Anbieter werden</a>
+          </li>
+        </ul>
+        <div class="d-flex">
+          <a href="login.html" class="btn btn-outline-light me-2">Login</a>
+          <a href="register.html" class="btn btn-accent">Registrieren</a>
+        </div>
+      </div>
+    </div>
   </nav>
 
+  <!-- Breadcrumb -->
+  <div class="container mt-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html"><i class="fas fa-home"></i></a></li>
+        <li class="breadcrumb-item active" aria-current="page">Ferienwohnungen</li>
+      </ol>
+    </nav>
+  </div>
+
   <!-- Page Header -->
-  <section class="py-5 bg-light">
+  <section class="py-4 bg-light">
     <div class="container">
       <div class="row">
         <div class="col-md-6">
@@ -26,13 +58,13 @@
           <div class="search-box bg-white p-3 rounded shadow">
             <form class="row g-2">
               <div class="col-md-5">
-                <input type="text" class="form-control" placeholder="Reiseziel eingeben...">
+                <input type="text" class="form-control" placeholder="Reiseziel eingeben..." id="searchLocation">
               </div>
               <div class="col-md-3">
-                <input type="date" class="form-control" placeholder="Anreise">
+                <input type="date" class="form-control" placeholder="Anreise" id="checkinDate">
               </div>
               <div class="col-md-3">
-                <input type="date" class="form-control" placeholder="Abreise">
+                <input type="date" class="form-control" placeholder="Abreise" id="checkoutDate">
               </div>
               <div class="col-md-1">
                 <button type="submit" class="btn btn-accent w-100">
@@ -51,7 +83,7 @@
     <div class="container">
       <div class="row mb-4">
         <div class="col-md-6">
-          <h5 class="mb-0">24 Ferienwohnungen verfügbar</h5>
+          <h5 class="mb-0" id="apartmentsCount">24 Ferienwohnungen verfügbar</h5>
         </div>
         <div class="col-md-6 text-md-end">
           <div class="dropdown d-inline-block me-2">
@@ -59,9 +91,10 @@
               Sortieren nach: Empfohlen
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Preis: Niedrig zu Hoch</a></li>
-              <li><a class="dropdown-item" href="#">Preis: Hoch zu Niedrig</a></li>
-              <li><a class="dropdown-item" href="#">Bewertung</a></li>
+              <li><a class="dropdown-item sort-option" href="#" data-sort="recommended">Empfohlen</a></li>
+              <li><a class="dropdown-item sort-option" href="#" data-sort="price-asc">Preis: Niedrig zu Hoch</a></li>
+              <li><a class="dropdown-item sort-option" href="#" data-sort="price-desc">Preis: Hoch zu Niedrig</a></li>
+              <li><a class="dropdown-item sort-option" href="#" data-sort="rating">Beste Bewertung</a></li>
             </ul>
           </div>
           <div class="dropdown d-inline-block">
@@ -80,19 +113,23 @@
               </div>
               <h6 class="dropdown-header">Ausstattung</h6>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="wifiFilter">
+                <input class="form-check-input filter-option" type="checkbox" id="wifiFilter" data-filter="wifi">
                 <label class="form-check-label" for="wifiFilter">WLAN</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="kitchenFilter">
+                <input class="form-check-input filter-option" type="checkbox" id="kitchenFilter" data-filter="kitchen">
                 <label class="form-check-label" for="kitchenFilter">Küche</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="parkingFilter">
+                <input class="form-check-input filter-option" type="checkbox" id="parkingFilter" data-filter="parking">
                 <label class="form-check-label" for="parkingFilter">Parkplatz</label>
               </div>
+              <div class="form-check">
+                <input class="form-check-input filter-option" type="checkbox" id="poolFilter" data-filter="pool">
+                <label class="form-check-label" for="poolFilter">Pool</label>
+              </div>
               <div class="mt-2">
-                <button class="btn btn-primary btn-sm">Filter anwenden</button>
+                <button class="btn btn-primary btn-sm" id="applyFilters">Filter anwenden</button>
               </div>
             </ul>
           </div>
@@ -103,25 +140,68 @@
         <!-- Apartments will be loaded here by script.js -->
       </div>
       
+      <!-- Pagination -->
       <nav class="mt-5">
-        <ul class="pagination justify-content-center">
+        <ul class="pagination justify-content-center" id="pagination">
           <li class="page-item disabled">
-            <a class="page-link" href="#" tabindex="-1">Zurück</a>
+            <a class="page-link" href="#" tabindex="-1" id="prevPage">Zurück</a>
           </li>
-          <li class="page-item active"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <!-- Page numbers will be added here by script.js -->
           <li class="page-item">
-            <a class="page-link" href="#">Weiter</a>
+            <a class="page-link" href="#" id="nextPage">Weiter</a>
           </li>
         </ul>
       </nav>
     </div>
   </section>
 
-  <!-- Footer (same as index.html) -->
+  <!-- Footer -->
   <footer class="bg-dark text-white py-5">
-    <!-- ... same footer as index.html ... -->
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <h5>Movo – Move and Go</h5>
+          <p>Die Plattform für einzigartige Ferienwohnungen und unvergessliche Reiseerlebnisse.</p>
+        </div>
+        <div class="col-md-2 mb-4">
+          <h5>Navigation</h5>
+          <ul class="list-unstyled">
+            <li><a href="index.html" class="text-white">Start</a></li>
+            <li><a href="apartments.html" class="text-white">Wohnungen</a></li>
+            <li><a href="host.html" class="text-white">Anbieter</a></li>
+            <li><a href="login.html" class="text-white">Login</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-4">
+          <h5>Rechtliches</h5>
+          <ul class="list-unstyled">
+            <li><a href="#impressum" class="text-white">Impressum</a></li>
+            <li><a href="datenschutz.html" class="text-white">Datenschutz</a></li>
+            <li><a href="agb.html" class="text-white">AGB</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-4">
+          <h5>Kontakt</h5>
+          <ul class="list-unstyled">
+            <li><i class="fas fa-envelope me-2"></i> info@movo.de</li>
+            <li><i class="fas fa-phone me-2"></i> +49 123 456789</li>
+            <li><i class="fas fa-map-marker-alt me-2"></i> Musterstraße 1, 12345 Berlin</li>
+          </ul>
+        </div>
+      </div>
+      <hr class="my-4 bg-light">
+      <div class="row">
+        <div class="col-md-6">
+          <p class="mb-0">&copy; 2025 Movo – Move and Go. Alle Rechte vorbehalten.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+        </div>
+      </div>
+    </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
