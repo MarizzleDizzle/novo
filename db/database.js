@@ -8,13 +8,16 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 db.serialize(() => {
+  // Tabelle für Benutzer mit zusätzlicher Spalte 'role'
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
-    email TEXT,
-    password TEXT
+    email TEXT UNIQUE,
+    password TEXT,
+    role TEXT CHECK(role IN ('customer', 'provider', 'admin')) NOT NULL
   )`);
 
+  // Tabelle für Ferienwohnungen
   db.run(`CREATE TABLE IF NOT EXISTS apartments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
@@ -23,6 +26,7 @@ db.serialize(() => {
     price_per_night REAL
   )`);
 
+  // Tabelle für Buchungen
   db.run(`CREATE TABLE IF NOT EXISTS bookings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
@@ -32,6 +36,11 @@ db.serialize(() => {
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (apartment_id) REFERENCES apartments(id)
   )`);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
 });
 
 module.exports = db;
