@@ -59,8 +59,7 @@ const Navbar: FC = () => {
           <Link href="/" style={styles.logo}>
             Movo
           </Link>
-          <div style={styles.menu}>
-          </div>
+
           <div style={styles.flexRow}>
             {user ? (
                 <>
