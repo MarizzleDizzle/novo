@@ -1,803 +1,690 @@
-// pages/landlord/apartments.js (oder .tsx)
 "use client";
-import Head from 'next/head';
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
 
-type Apartment = {
-    id: number;
-    title: string;
-    description: string;
-    address: string;
-    city: string;
-    zip: string;
-    country: string;
-    guests: number;
-    bedrooms: number;
-    beds: number;
-    bathrooms: number;
-    size: number;
-    price: number;
-    minStay: number;
-    availableNow: boolean;
-    availableFrom: string;
-    amenities: {
-        wifi: boolean;
-        kitchen: boolean;
-        parking: boolean;
-        tv: boolean;
-    };
-    images: string[];
-};
+import React, { useState } from "react";
+import { useAuth } from "../lib/auth";
+import Link from "next/link";
 
-export default function LandlordApartments() {
-    const [apartments, setApartments] = useState<Apartment[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [editingId, setEditingId] = useState<number | null>(null);
-    const [editForm, setEditForm] = useState<Partial<Apartment>>({});
-
-    // Fetch apartments that belong to the landlord
-    useEffect(() => {
-        const fetchLandlordApartments = async () => {
-            try {
-                setLoading(true);
-                // Note: This endpoint would need to be implemented in your backend
-                // It should return only apartments belonging to the logged in landlord
-                const response = await fetch('http://localhost:5022/api/landlord/apartments', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming JWT auth
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch apartments: ${response.status}`);
-                }
-
-                const data = await response.json();
-                setApartments(data);
-                setLoading(false);
-            } catch (err) {
-                console.error('Error fetching landlord apartments:', err);
-                // @ts-ignore
-                setError(err.message);
-                setLoading(false);
-            }
-        };
-
-        fetchLandlordApartments();
-    }, []);
-
-    // Helper function to parse JSON strings
-    const parseJSON = (jsonString) => {
-        try {
-            return JSON.parse(jsonString);
-        } catch (e) {
-            return null;
-        }
-    };
-
-    // Helper function to get full image URL
-    const getImageUrl = (path: string) => {
-        const baseUrl = process.env.NODE_ENV === 'production' ? 'https://deine-domain.de' : 'http://localhost:5022';
-        return `${baseUrl}/${path}`;
-    };
-
-    // Function to start editing an apartment
-    const startEditing = (apartment: Apartment) => {
-        setEditingId(apartment.id);
-        setEditForm({
-            ...apartment,
-            amenities: parseJSON(apartment.amenities) || apartment.amenities,
-            images: parseJSON(apartment.images) || apartment.images,
-        });
-    };
-
-    // Function to cancel editing
-    const cancelEditing = () => {
-        setEditingId(null);
-        setEditForm({});
-    };
-
-    // Function to handle form changes
-    const handleFormChange = (field: string, value: any) => {
-        setEditForm({
-            ...editForm,
-            [field]: value
-        });
-    };
-
-    // Function to handle amenity changes
-    const handleAmenityChange = (amenity: string, value: boolean) => {
-        setEditForm({
-            ...editForm,
-            amenities: {
-                ...editForm.amenities,
-                [amenity]: value
-            }
-        });
-    };
-
-    // Function to save apartment changes
-    const saveApartment = async (id: number) => {
-        try {
-            // Prepare the data for the API
-            const apartmentData = {
-                ...editForm,
-                amenities: typeof editForm.amenities === 'object' ? JSON.stringify(editForm.amenities) : editForm.amenities,
-                images: Array.isArray(editForm.images) ? JSON.stringify(editForm.images) : editForm.images
-            };
-
-            const response = await fetch(`http://localhost:5022/api/apartments/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify(apartmentData)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to update apartment: ${response.status}`);
-            }
-
-            // Update the local state
-            const updatedApartment = await response.json();
-            setApartments(apartments.map(apt => apt.id === id ? updatedApartment : apt));
-
-            // Exit edit mode
-            setEditingId(null);
-            setEditForm({});
-        } catch (err) {
-            console.error('Error updating apartment:', err);
-            alert('Fehler beim Aktualisieren der Wohnung.');
-        }
-    };
-
-    // Function to delete apartment
-    const deleteApartment = async (id: number) => {
-        if (!confirm('Möchtest du diese Wohnung wirklich löschen?')) {
-            return;
-        }
-
-        try {
-            const response = await fetch(`http://localhost:5022/api/apartments/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to delete apartment: ${response.status}`);
-            }
-
-            // Remove the apartment from local state
-            setApartments(apartments.filter(apt => apt.id !== id));
-        } catch (err) {
-            console.error('Error deleting apartment:', err);
-            alert('Fehler beim Löschen der Wohnung.');
-        }
-    };
+const DashboardPage = () => {
+    const { user } = useAuth();
+    const [showProfileForm, setShowProfileForm] = useState(false);
+    const [showPasswordForm, setShowPasswordForm] = useState(false);
+    const [profileData, setProfileData] = useState({
+        name: user?.name || "",
+        email: user?.email || ""
+    });
+    const [passwordData, setPasswordData] = useState({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+    });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     // Styles
     const styles = {
-        header: {
-            backgroundColor: '#2563eb', // blue-600
-            color: 'white',
-            padding: '16px 0',
+        pageContainer: {
+            minHeight: '100vh',
+            backgroundColor: '#F9FAFB', // gray-50
         },
         container: {
             maxWidth: '1200px',
             margin: '0 auto',
-            padding: '0 16px',
+            padding: '32px 16px',
         },
-        pageHeader: {
-            backgroundColor: '#2563eb',
-            color: 'white',
-            padding: '32px 0',
-            textAlign: 'center' as const,
-        },
-        heading: {
-            fontSize: '36px',
-            fontWeight: 'bold',
-            marginBottom: '16px',
-        },
-        subheading: {
-            fontSize: '20px',
+        header: {
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+            padding: '32px',
             marginBottom: '32px',
         },
-        button: {
-            backgroundColor: '#2563eb',
-            color: 'white',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: '500',
+        headerTitle: {
+            fontSize: '30px',
+            fontWeight: 'bold',
+            color: '#1F2937', // gray-800
         },
-        whiteButton: {
-            backgroundColor: 'white',
-            color: '#2563eb',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: '500',
+        headerHighlight: {
+            color: '#2563EB', // blue-600
         },
-        redButton: {
-            backgroundColor: '#dc2626',
-            color: 'white',
-            padding: '8px 16px',
+        headerSubtitle: {
+            color: '#6B7280', // gray-500
+            marginTop: '8px',
+        },
+        notification: {
             borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+            padding: '16px',
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'flex-start',
+        },
+        errorNotification: {
+            backgroundColor: '#FEF2F2', // red-50
+            borderLeft: '4px solid #EF4444', // red-500
+        },
+        successNotification: {
+            backgroundColor: '#F0FDF4', // green-50
+            borderLeft: '4px solid #10B981', // green-500
+        },
+        notificationIcon: {
+            width: '20px',
+            height: '20px',
+            flexShrink: 0,
+            marginRight: '12px',
+        },
+        notificationText: {
             fontSize: '14px',
-            fontWeight: '500',
         },
-        cancelButton: {
-            backgroundColor: '#6b7280',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
+        errorText: {
+            color: '#B91C1C', // red-700
         },
-        saveButton: {
-            backgroundColor: '#10b981',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-        },
-        section: {
-            padding: '64px 0',
-        },
-        sectionLight: {
-            padding: '64px 0',
-            backgroundColor: '#F9FAFB', // gray-50
+        successText: {
+            color: '#047857', // green-700
         },
         grid: {
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(1, 1fr)',
             gap: '32px',
+            '@media (min-width: 1024px)': {
+                gridTemplateColumns: '1fr 2fr',
+            }
         },
-        apartmentCard: {
+        card: {
             backgroundColor: 'white',
-            borderRadius: '8px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
             overflow: 'hidden',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         },
-        apartmentImage: {
-            height: '200px',
-            backgroundColor: '#E5E7EB', // gray-200
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+        cardHeader: {
+            background: 'linear-gradient(to right, #2563EB, #60A5FA)',
+            padding: '16px 24px',
         },
-        apartmentBody: {
+        cardTitle: {
+            fontSize: '18px',
+            fontWeight: '600',
+            color: 'white',
+        },
+        cardBody: {
             padding: '24px',
         },
-        apartmentTitle: {
-            fontSize: '20px',
-            fontWeight: 'bold',
-            marginBottom: '8px',
-        },
-        apartmentLocation: {
+        menuButton: {
+            width: '100%',
             display: 'flex',
             alignItems: 'center',
-            marginBottom: '16px',
-            color: '#6B7280', // gray-500
+            justifyContent: 'space-between',
+            padding: '12px 16px',
+            backgroundColor: '#F9FAFB', // gray-50
+            borderRadius: '8px',
+            marginBottom: '12px',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            ':hover': {
+                backgroundColor: '#F3F4F6', // gray-100
+            },
+        },
+        menuText: {
+            fontWeight: '500',
+            color: '#4B5563', // gray-600
+        },
+        specialButton: {
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 16px',
+            backgroundColor: '#EBF5FF', // blue-50
+            color: '#2563EB', // blue-600
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            ':hover': {
+                backgroundColor: '#DBEAFE', // blue-100
+            },
         },
         formGroup: {
             marginBottom: '16px',
         },
+        label: {
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#4B5563', // gray-600
+            marginBottom: '8px',
+        },
         input: {
             width: '100%',
-            padding: '12px',
+            padding: '10px 12px',
             borderRadius: '8px',
             border: '1px solid #D1D5DB', // gray-300
             fontSize: '16px',
-        },
-        label: {
-            display: 'block',
-            marginBottom: '8px',
-            fontWeight: '500',
-            color: '#374151', // gray-700
-        },
-        checkboxGroup: {
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '12px',
-            marginBottom: '16px',
-        },
-        checkbox: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
+            transition: 'border-color 0.2s, box-shadow 0.2s',
+            ':focus': {
+                outline: 'none',
+                borderColor: '#2563EB', // blue-600
+                boxShadow: '0 0 0 3px rgba(37, 99, 235, 0.1)',
+            },
         },
         buttonGroup: {
             display: 'flex',
-            gap: '8px',
-            marginTop: '16px',
+            gap: '12px',
+            marginTop: '24px',
         },
-        editCard: {
-            backgroundColor: 'white',
+        primaryButton: {
+            backgroundColor: '#2563EB', // blue-600
+            color: 'white',
+            fontWeight: '500',
+            padding: '10px 16px',
             borderRadius: '8px',
-            padding: '24px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        },
-        textarea: {
-            width: '100%',
-            padding: '12px',
-            borderRadius: '8px',
-            border: '1px solid #D1D5DB', // gray-300
-            fontSize: '16px',
-            minHeight: '100px',
-            resize: 'vertical',
-        },
-        loading: {
-            textAlign: 'center' as const,
-            padding: '20px',
-            fontSize: '18px',
-            color: '#6B7280',
-        },
-        errorMessage: {
-            textAlign: 'center' as const,
-            padding: '20px',
-            fontSize: '18px',
-            color: '#DC2626',
-        },
-        addNewButton: {
-            display: 'block',
-            width: '100%',
-            padding: '24px',
-            borderRadius: '8px',
-            border: '2px dashed #D1D5DB',
-            backgroundColor: 'white',
-            textAlign: 'center' as const,
-            fontSize: '18px',
-            color: '#6B7280',
+            border: 'none',
             cursor: 'pointer',
-            margin: '32px 0',
+            transition: 'background-color 0.2s',
+            ':hover': {
+                backgroundColor: '#1D4ED8', // blue-700
+            },
+            ':disabled': {
+                backgroundColor: '#9CA3AF', // gray-400
+                cursor: 'not-allowed',
+            },
         },
-        apartmentStats: {
-            display: 'flex',
-            gap: '16px',
-            marginBottom: '16px',
+        secondaryButton: {
+            backgroundColor: '#F3F4F6', // gray-100
+            color: '#4B5563', // gray-600
+            fontWeight: '500',
+            padding: '10px 16px',
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            ':hover': {
+                backgroundColor: '#E5E7EB', // gray-200
+            },
         },
-        statItem: {
+        spinnerContainer: {
             display: 'flex',
             alignItems: 'center',
-            gap: '4px',
-            color: '#6B7280',
         },
-        twoColGrid: {
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '16px',
-        },
-        switch: {
-            position: 'relative' as const,
-            display: 'inline-block',
-            width: '60px',
-            height: '34px',
-        },
-        slider: {
-            position: 'absolute' as const,
-            cursor: 'pointer',
-            top: '0',
-            left: '0',
-            right: '0',
-            bottom: '0',
-            backgroundColor: '#ccc',
-            transition: '.4s',
-            borderRadius: '34px',
-        },
-        sliderBefore: {
-            position: 'absolute' as const,
-            content: '',
-            height: '26px',
-            width: '26px',
-            left: '4px',
-            bottom: '4px',
-            backgroundColor: 'white',
-            transition: '.4s',
-            borderRadius: '50%',
-        },
-        switchInput: {
-            opacity: 0,
-            width: 0,
-            height: 0,
-        },
-        imgPreview: {
-            width: '100px',
-            height: '100px',
-            objectFit: 'cover' as const,
-            borderRadius: '4px',
+        spinner: {
             marginRight: '8px',
-            marginBottom: '8px',
+            animation: 'spin 1s linear infinite',
+            '@keyframes spin': {
+                from: { transform: 'rotate(0deg)' },
+                to: { transform: 'rotate(360deg)' },
+            },
         },
-        imagePreviewContainer: {
-            display: 'flex',
-            flexWrap: 'wrap',
+        infoBox: {
+            backgroundColor: '#F9FAFB', // gray-50
+            borderRadius: '8px',
+            padding: '16px',
+            marginTop: '16px',
+            color: '#6B7280', // gray-500
+            fontSize: '14px',
+        },
+        actionLink: {
+            display: 'inline-flex',
+            alignItems: 'center',
+            backgroundColor: '#2563EB', // blue-600
+            color: 'white',
+            fontWeight: '500',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            transition: 'background-color 0.2s',
+            ':hover': {
+                backgroundColor: '#1D4ED8', // blue-700
+            },
+        },
+        sectionTitle: {
+            fontSize: '18px',
+            fontWeight: '500',
+            color: '#1F2937', // gray-800
             marginBottom: '16px',
-        },
+        }
     };
 
-    return (
-        <div>
-            <Head>
-                <title>Meine Apartments - Movo</title>
-                <meta name="description" content="Verwalte deine Ferienwohnungen auf Movo" />
-            </Head>
+    const handleInputChange = (e, formType) => {
+        const { name, value } = e.target;
+        if (formType === "profile") {
+            setProfileData((prev) => ({ ...prev, [name]: value }));
+        } else if (formType === "password") {
+            setPasswordData((prev) => ({ ...prev, [name]: value }));
+        }
+    };
 
-            {/* Page Header */}
-            <div style={styles.pageHeader}>
-                <div style={styles.container}>
-                    <h1 style={styles.heading}>Meine Apartments</h1>
-                    <p style={styles.subheading}>Verwalte deine Ferienwohnungen auf Movo</p>
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+        setSuccess("");
+
+        try {
+            const response = await fetch("http://localhost:5022/api/users/update", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: user?.userID, ...profileData }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.error || "Fehler beim Aktualisieren");
+            }
+
+            setSuccess("Profildaten erfolgreich aktualisiert!");
+            setShowProfileForm(false);
+            setTimeout(() => window.location.reload(), 1500);
+        } catch (err) {
+            console.error(err);
+            setError(err.message || "Fehler beim Aktualisieren der Profildaten");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+        setSuccess("");
+
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            setError("Die Passwörter stimmen nicht überein");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:5022/api/users/change-password", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: user?.userID,
+                    oldPassword: passwordData.oldPassword,
+                    newPassword: passwordData.newPassword
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.error || "Fehler beim Passwort ändern");
+            }
+
+            setSuccess("Passwort erfolgreich geändert!");
+            setShowPasswordForm(false);
+            setPasswordData({ oldPassword: "", newPassword: "", confirmPassword: "" });
+        } catch (err) {
+            console.error(err);
+            setError(err.message || "Fehler beim Ändern des Passworts");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const becomeProvider = async () => {
+        setLoading(true);
+        setError("");
+        setSuccess("");
+
+        try {
+            const response = await fetch("http://localhost:5022/api/users/become-provider", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: user?.userID }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.error || "Fehler beim Aktualisieren der Rolle");
+            }
+
+            setSuccess("Sie sind jetzt ein Anbieter!");
+            setTimeout(() => window.location.reload(), 1500);
+        } catch (error) {
+            console.error(error);
+            setError(error.message || "Fehler beim Anbieterwechsel");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!user) {
+        return (
+            <div style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#F9FAFB'
+            }}>
+                <div style={{
+                    backgroundColor: 'white',
+                    padding: '32px',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    maxWidth: '400px',
+                    width: '100%',
+                    textAlign: 'center'
+                }}>
+                    <h2 style={{
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        color: '#1F2937',
+                        marginBottom: '24px'
+                    }}>
+                        Bitte einloggen
+                    </h2>
+                    <p style={{
+                        color: '#6B7280',
+                        marginBottom: '24px'
+                    }}>
+                        Sie müssen eingeloggt sein, um auf das Dashboard zugreifen zu können.
+                    </p>
+                    <Link href="/login" style={{
+                        display: 'inline-block',
+                        backgroundColor: '#2563EB',
+                        color: 'white',
+                        fontWeight: '600',
+                        padding: '12px 24px',
+                        borderRadius: '8px',
+                        textDecoration: 'none',
+                        transition: 'background-color 0.2s'
+                    }}>
+                        Zum Login
+                    </Link>
                 </div>
             </div>
+        );
+    }
 
-            {/* Main Content */}
-            <div style={styles.sectionLight}>
-                <div style={styles.container}>
-                    {/* Add New Apartment Button */}
-                    <Link href="/landlord/apartments/new" style={{ textDecoration: 'none' }}>
-                        <div style={styles.addNewButton}>
-                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', marginRight: '8px' }}>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            Neues Apartment hinzufügen
-                        </div>
-                    </Link>
+    return (
+        <div style={styles.pageContainer}>
+            <div style={styles.container}>
+                {/* Header */}
+                <div style={styles.header}>
+                    <h1 style={styles.headerTitle}>
+                        Willkommen, <span style={styles.headerHighlight}>{user.name}</span>!
+                    </h1>
+                    <p style={styles.headerSubtitle}>Verwalten Sie Ihr Konto und Ihre Buchungen</p>
+                </div>
 
-                    {loading && (
-                        <div style={styles.loading}>
-                            Lade Apartments...
-                        </div>
-                    )}
+                {/* Notifications */}
+                {error && (
+                    <div style={{...styles.notification, ...styles.errorNotification}}>
+                        <svg style={{...styles.notificationIcon, color: '#EF4444'}} viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                        <p style={{...styles.notificationText, ...styles.errorText}}>{error}</p>
+                    </div>
+                )}
 
-                    {error && (
-                        <div style={styles.errorMessage}>
-                            Fehler beim Laden der Apartments: {error}
-                        </div>
-                    )}
+                {success && (
+                    <div style={{...styles.notification, ...styles.successNotification}}>
+                        <svg style={{...styles.notificationIcon, color: '#10B981'}} viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <p style={{...styles.notificationText, ...styles.successText}}>{success}</p>
+                    </div>
+                )}
 
-                    {!loading && !error && (
-                        <>
-                            {apartments.length === 0 ? (
-                                <div style={{ textAlign: 'center', padding: '32px' }}>
-                                    <h3 style={{ marginBottom: '16px' }}>Du hast noch keine Apartments eingestellt</h3>
-                                    <p>Beginne damit, deine erste Ferienwohnung hinzuzufügen und verdiene Geld mit Movo.</p>
-                                </div>
-                            ) : (
-                                <div style={styles.grid}>
-                                    {apartments.map((apartment) => {
-                                        const isEditing = editingId === apartment.id;
-                                        const images = parseJSON(apartment.images) || [];
-                                        const firstImage = images.length > 0 ? images[0] : null;
-                                        const amenities = parseJSON(apartment.amenities) || apartment.amenities;
+                {/* Main content */}
+                <div style={styles.grid}>
+                    {/* Account section */}
+                    <div>
+                        <div style={styles.card}>
+                            <div style={styles.cardHeader}>
+                                <h2 style={styles.cardTitle}>Kontoeinstellungen</h2>
+                            </div>
+                            <div style={styles.cardBody}>
+                                <button
+                                    onClick={() => {
+                                        setShowProfileForm(!showProfileForm);
+                                        setShowPasswordForm(false);
+                                        setError("");
+                                        setSuccess("");
+                                    }}
+                                    style={styles.menuButton}
+                                >
+                                    <span style={styles.menuText}>Profildaten ändern</span>
+                                    <svg style={{ width: '20px', height: '20px', color: '#9CA3AF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
 
-                                        if (isEditing) {
-                                            // Edit Mode
-                                            return (
-                                                <div key={apartment.id} style={styles.editCard}>
-                                                    <h3 style={{ marginBottom: '24px' }}>Apartment bearbeiten</h3>
+                                <button
+                                    onClick={() => {
+                                        setShowPasswordForm(!showPasswordForm);
+                                        setShowProfileForm(false);
+                                        setError("");
+                                        setSuccess("");
+                                    }}
+                                    style={styles.menuButton}
+                                >
+                                    <span style={styles.menuText}>Passwort ändern</span>
+                                    <svg style={{ width: '20px', height: '20px', color: '#9CA3AF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
 
-                                                    <div style={styles.formGroup}>
-                                                        <label htmlFor="title" style={styles.label}>Titel</label>
-                                                        <input
-                                                            id="title"
-                                                            type="text"
-                                                            value={editForm.title || ''}
-                                                            onChange={(e) => handleFormChange('title', e.target.value)}
-                                                            style={styles.input}
-                                                        />
-                                                    </div>
-
-                                                    <div style={styles.formGroup}>
-                                                        <label htmlFor="description" style={styles.label}>Beschreibung</label>
-                                                        <textarea
-                                                            id="description"
-                                                            value={editForm.description || ''}
-                                                            onChange={(e) => handleFormChange('description', e.target.value)}
-                                                            style={styles.textarea}
-                                                        />
-                                                    </div>
-
-                                                    <div style={styles.twoColGrid}>
-                                                        <div style={styles.formGroup}>
-                                                            <label htmlFor="city" style={styles.label}>Stadt</label>
-                                                            <input
-                                                                id="city"
-                                                                type="text"
-                                                                value={editForm.city || ''}
-                                                                onChange={(e) => handleFormChange('city', e.target.value)}
-                                                                style={styles.input}
-                                                            />
-                                                        </div>
-
-                                                        <div style={styles.formGroup}>
-                                                            <label htmlFor="country" style={styles.label}>Land</label>
-                                                            <input
-                                                                id="country"
-                                                                type="text"
-                                                                value={editForm.country || ''}
-                                                                onChange={(e) => handleFormChange('country', e.target.value)}
-                                                                style={styles.input}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div style={styles.formGroup}>
-                                                        <label htmlFor="address" style={styles.label}>Adresse</label>
-                                                        <input
-                                                            id="address"
-                                                            type="text"
-                                                            value={editForm.address || ''}
-                                                            onChange={(e) => handleFormChange('address', e.target.value)}
-                                                            style={styles.input}
-                                                        />
-                                                    </div>
-
-                                                    <div style={styles.twoColGrid}>
-                                                        <div style={styles.formGroup}>
-                                                            <label htmlFor="zip" style={styles.label}>PLZ</label>
-                                                            <input
-                                                                id="zip"
-                                                                type="text"
-                                                                value={editForm.zip || ''}
-                                                                onChange={(e) => handleFormChange('zip', e.target.value)}
-                                                                style={styles.input}
-                                                            />
-                                                        </div>
-
-                                                        <div style={styles.formGroup}>
-                                                            <label htmlFor="price" style={styles.label}>Preis pro Nacht (€)</label>
-                                                            <input
-                                                                id="price"
-                                                                type="number"
-                                                                value={editForm.price || 0}
-                                                                onChange={(e) => handleFormChange('price', parseFloat(e.target.value))}
-                                                                style={styles.input}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div style={{ ...styles.twoColGrid, marginBottom: '16px' }}>
-                                                        <div style={styles.formGroup}>
-                                                            <label htmlFor="guests" style={styles.label}>Gäste</label>
-                                                            <input
-                                                                id="guests"
-                                                                type="number"
-                                                                value={editForm.guests || 0}
-                                                                onChange={(e) => handleFormChange('guests', parseInt(e.target.value))}
-                                                                style={styles.input}
-                                                            />
-                                                        </div>
-
-                                                        <div style={styles.formGroup}>
-                                                            <label htmlFor="bedrooms" style={styles.label}>Schlafzimmer</label>
-                                                            <input
-                                                                id="bedrooms"
-                                                                type="number"
-                                                                value={editForm.bedrooms || 0}
-                                                                onChange={(e) => handleFormChange('bedrooms', parseInt(e.target.value))}
-                                                                style={styles.input}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div style={{ ...styles.twoColGrid, marginBottom: '16px' }}>
-                                                        <div style={styles.formGroup}>
-                                                            <label htmlFor="bathrooms" style={styles.label}>Badezimmer</label>
-                                                            <input
-                                                                id="bathrooms"
-                                                                type="number"
-                                                                value={editForm.bathrooms || 0}
-                                                                onChange={(e) => handleFormChange('bathrooms', parseInt(e.target.value))}
-                                                                style={styles.input}
-                                                            />
-                                                        </div>
-
-                                                        <div style={styles.formGroup}>
-                                                            <label htmlFor="size" style={styles.label}>Größe (m²)</label>
-                                                            <input
-                                                                id="size"
-                                                                type="number"
-                                                                value={editForm.size || 0}
-                                                                onChange={(e) => handleFormChange('size', parseInt(e.target.value))}
-                                                                style={styles.input}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div style={styles.formGroup}>
-                                                        <label style={styles.label}>Ausstattung</label>
-                                                        <div style={styles.checkboxGroup}>
-                                                            <div style={styles.checkbox}>
-                                                                <input
-                                                                    id="wifi"
-                                                                    type="checkbox"
-                                                                    checked={editForm.amenities?.wifi || false}
-                                                                    onChange={(e) => handleAmenityChange('wifi', e.target.checked)}
-                                                                />
-                                                                <label htmlFor="wifi">WLAN</label>
-                                                            </div>
-
-                                                            <div style={styles.checkbox}>
-                                                                <input
-                                                                    id="kitchen"
-                                                                    type="checkbox"
-                                                                    checked={editForm.amenities?.kitchen || false}
-                                                                    onChange={(e) => handleAmenityChange('kitchen', e.target.checked)}
-                                                                />
-                                                                <label htmlFor="kitchen">Küche</label>
-                                                            </div>
-
-                                                            <div style={styles.checkbox}>
-                                                                <input
-                                                                    id="parking"
-                                                                    type="checkbox"
-                                                                    checked={editForm.amenities?.parking || false}
-                                                                    onChange={(e) => handleAmenityChange('parking', e.target.checked)}
-                                                                />
-                                                                <label htmlFor="parking">Parkplatz</label>
-                                                            </div>
-
-                                                            <div style={styles.checkbox}>
-                                                                <input
-                                                                    id="tv"
-                                                                    type="checkbox"
-                                                                    checked={editForm.amenities?.tv || false}
-                                                                    onChange={(e) => handleAmenityChange('tv', e.target.checked)}
-                                                                />
-                                                                <label htmlFor="tv">TV</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div style={styles.formGroup}>
-                                                        <label style={styles.label}>Verfügbarkeit</label>
-                                                        <div style={styles.checkbox}>
-                                                            <input
-                                                                id="availableNow"
-                                                                type="checkbox"
-                                                                checked={editForm.availableNow || false}
-                                                                onChange={(e) => handleFormChange('availableNow', e.target.checked)}
-                                                            />
-                                                            <label htmlFor="availableNow">Sofort verfügbar</label>
-                                                        </div>
-                                                    </div>
-
-                                                    {!editForm.availableNow && (
-                                                        <div style={styles.formGroup}>
-                                                            <label htmlFor="availableFrom" style={styles.label}>Verfügbar ab</label>
-                                                            <input
-                                                                id="availableFrom"
-                                                                type="date"
-                                                                value={editForm.availableFrom || ''}
-                                                                onChange={(e) => handleFormChange('availableFrom', e.target.value)}
-                                                                style={styles.input}
-                                                            />
-                                                        </div>
-                                                    )}
-
-                                                    {/* Images Preview */}
-                                                    <div style={styles.formGroup}>
-                                                        <label style={styles.label}>Bilder</label>
-                                                        <div style={styles.imagePreviewContainer}>
-                                                            {Array.isArray(editForm.images) && editForm.images.map((image, index) => (
-                                                                <img
-                                                                    key={index}
-                                                                    src={getImageUrl(image)}
-                                                                    alt={`Apartment Bild ${index + 1}`}
-                                                                    style={styles.imgPreview}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                        <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '8px' }}>
-                                                            Um Bilder zu ändern, nutze bitte die Detailansicht.
-                                                        </p>
-                                                    </div>
-
-                                                    <div style={styles.buttonGroup}>
-                                                        <button
-                                                            style={styles.saveButton}
-                                                            onClick={() => saveApartment(apartment.id)}
-                                                        >
-                                                            Speichern
-                                                        </button>
-                                                        <button
-                                                            style={styles.cancelButton}
-                                                            onClick={cancelEditing}
-                                                        >
-                                                            Abbrechen
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            );
-                                        } else {
-                                            // View Mode
-                                            return (
-                                                <div key={apartment.id} style={styles.apartmentCard}>
-                                                    <div
-                                                        style={{
-                                                            ...styles.apartmentImage,
-                                                            backgroundImage: firstImage ? `url(${getImageUrl(firstImage)})` : 'none'
-                                                        }}
-                                                    >
-                                                        {!firstImage && <span>Keine Bilder verfügbar</span>}
-                                                    </div>
-                                                    <div style={styles.apartmentBody}>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                                                            <h3 style={styles.apartmentTitle}>{apartment.title}</h3>
-                                                            <div style={{ display: 'flex', gap: '8px' }}>
-                                                                <button
-                                                                    onClick={() => startEditing(apartment)}
-                                                                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                                                >
-                                                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                                    </svg>
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => deleteApartment(apartment.id)}
-                                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#DC2626' }}
-                                                                >
-                                                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                                    </svg>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                        <div style={styles.apartmentLocation}>
-                                                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                                                            </svg>
-                                                            <span style={{ marginLeft: '8px' }}>{apartment.city}, {apartment.country}</span>
-                                                        </div>
-                                                        <div style={styles.apartmentStats}>
-                                                            <div style={styles.statItem}>
-                                                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                                                </svg>
-                                                                <span>{apartment.guests}</span>
-                                                            </div>
-                                                            <div style={styles.statItem}>
-                                                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                                                                </svg>
-                                                                <span>{apartment.bedrooms} Schlafzimmer</span>
-                                                            </div>
-                                                            <div style={styles.statItem}>
-                                                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 10V6a5 5 0 0110 0v4M5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
-                                                                </svg>
-                                                                <span>{apartment.bathrooms} Badezimmer</span>
-                                                            </div>
-                                                        </div> {/* End apartmentStats */}
-                                                        <p style={{ marginTop: '12px', fontWeight: 500 }}>{apartment.price} € / Nacht</p>
-                                                    </div> {/* End apartmentBody */}
-                                                </div> {/* End apartmentCard */}
-                                        );
-                                    })}
-                                  </div> {/* End grid */}
+                                {user.role !== "provider" && (
+                                    <button
+                                        onClick={becomeProvider}
+                                        disabled={loading}
+                                        style={styles.specialButton}
+                                    >
+                                        <span style={{ fontWeight: '500' }}>Anbieter werden</span>
+                                        {loading ? (
+                                            <svg style={{
+                                                width: '20px',
+                                                height: '20px',
+                                                color: '#2563EB',
+                                                animation: 'spin 1s linear infinite'
+                                            }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle style={{ opacity: '0.25' }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path style={{ opacity: '0.75' }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        ) : (
+                                            <svg style={{ width: '20px', height: '20px', color: '#2563EB' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                            </svg>
+                                        )}
+                                    </button>
                                 )}
-                        </>
-                    )}
-                </div> {/* End container */}
-            </div> {/* End sectionLight */}
-        </div> {/* End page */}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Forms and main content */}
+                    <div>
+                        {showProfileForm && (
+                            <div style={{...styles.card, marginBottom: '32px'}}>
+                                <div style={styles.cardHeader}>
+                                    <h3 style={styles.cardTitle}>Profildaten bearbeiten</h3>
+                                </div>
+                                <div style={styles.cardBody}>
+                                    <form onSubmit={handleUpdateProfile}>
+                                        <div style={styles.formGroup}>
+                                            <label htmlFor="name" style={styles.label}>Name</label>
+                                            <input
+                                                type="text"
+                                                id="name"
+                                                name="name"
+                                                value={profileData.name}
+                                                onChange={(e) => handleInputChange(e, "profile")}
+                                                required
+                                                style={styles.input}
+                                            />
+                                        </div>
+                                        <div style={styles.formGroup}>
+                                            <label htmlFor="email" style={styles.label}>E-Mail</label>
+                                            <input
+                                                type="email"
+                                                id="email"
+                                                name="email"
+                                                value={profileData.email}
+                                                onChange={(e) => handleInputChange(e, "profile")}
+                                                required
+                                                style={styles.input}
+                                            />
+                                        </div>
+                                        <div style={styles.buttonGroup}>
+                                            <button
+                                                type="submit"
+                                                disabled={loading}
+                                                style={styles.primaryButton}
+                                            >
+                                                {loading ? (
+                                                    <span style={styles.spinnerContainer}>
+                            <svg style={styles.spinner} width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle style={{ opacity: '0.25' }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path style={{ opacity: '0.75' }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Wird aktualisiert...
+                          </span>
+                                                ) : (
+                                                    "Speichern"
+                                                )}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowProfileForm(false)}
+                                                style={styles.secondaryButton}
+                                            >
+                                                Abbrechen
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {showPasswordForm && (
+                            <div style={{...styles.card, marginBottom: '32px'}}>
+                                <div style={styles.cardHeader}>
+                                    <h3 style={styles.cardTitle}>Passwort ändern</h3>
+                                </div>
+                                <div style={styles.cardBody}>
+                                    <form onSubmit={handleChangePassword}>
+                                        <div style={styles.formGroup}>
+                                            <label htmlFor="oldPassword" style={styles.label}>Altes Passwort</label>
+                                            <input
+                                                type="password"
+                                                id="oldPassword"
+                                                name="oldPassword"
+                                                value={passwordData.oldPassword}
+                                                onChange={(e) => handleInputChange(e, "password")}
+                                                required
+                                                style={styles.input}
+                                            />
+                                        </div>
+                                        <div style={styles.formGroup}>
+                                            <label htmlFor="newPassword" style={styles.label}>Neues Passwort</label>
+                                            <input
+                                                type="password"
+                                                id="newPassword"
+                                                name="newPassword"
+                                                value={passwordData.newPassword}
+                                                onChange={(e) => handleInputChange(e, "password")}
+                                                required
+                                                style={styles.input}
+                                            />
+                                        </div>
+                                        <div style={styles.formGroup}>
+                                            <label htmlFor="confirmPassword" style={styles.label}>Passwort bestätigen</label>
+                                            <input
+                                                type="password"
+                                                id="confirmPassword"
+                                                name="confirmPassword"
+                                                value={passwordData.confirmPassword}
+                                                onChange={(e) => handleInputChange(e, "password")}
+                                                required
+                                                style={styles.input}
+                                            />
+                                        </div>
+                                        <div style={styles.buttonGroup}>
+                                            <button
+                                                type="submit"
+                                                disabled={loading}
+                                                style={styles.primaryButton}
+                                            >
+                                                {loading ? (
+                                                    <span style={styles.spinnerContainer}>
+                            <svg style={styles.spinner} width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle style={{ opacity: '0.25' }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path style={{ opacity: '0.75' }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Wird aktualisiert...
+                          </span>
+                                                ) : (
+                                                    "Passwort ändern"
+                                                )}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPasswordForm(false)}
+                                                style={styles.secondaryButton}
+                                            >
+                                                Abbrechen
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Provider or User specific content */}
+                        <div style={styles.card}>
+                            <div style={styles.cardHeader}>
+                                <h2 style={styles.cardTitle}>
+                                    {user.role === "provider" ? "Anbieterübersicht" : "Buchungen"}
+                                </h2>
+                            </div>
+                            <div style={styles.cardBody}>
+                                {user.role === "provider" ? (
+                                    <div>
+                                        <h3 style={styles.sectionTitle}>Ihre Unterkünfte</h3>
+                                        <Link
+                                            href="/add"
+                                            style={{...styles.actionLink, marginBottom: '16px', display: 'inline-flex'}}
+                                        >
+                                            <svg style={{ width: '20px', height: '20px', marginRight: '8px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            </svg>
+                                            Neue Unterkunft erstellen
+                                        </Link>
+                                        <div style={styles.infoBox}>
+                                            Noch keine Unterkünfte vorhanden. Erstellen Sie Ihre erste Unterkunft!
+                                        </div>
+
+                                        <h3 style={{...styles.sectionTitle, marginTop: '24px'}}>Buchungsübersicht</h3>
+                                        <div style={styles.infoBox}>
+                                            Keine aktuellen Buchungen vorhanden.
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <h3 style={styles.sectionTitle}>Ihre Buchungen</h3>
+                                        <Link
+                                            href="/bookings"
+                                            style={styles.actionLink}
+                                        >
+                                            <svg style={{ width: '20px', height: '20px', marginRight: '8px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            </svg>
+                                            Neue Buchung erstellen
+                                        </Link>
+                                        <div style={styles.infoBox}>
+                                            Keine aktuellen Buchungen vorhanden.
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default DashboardPage;
