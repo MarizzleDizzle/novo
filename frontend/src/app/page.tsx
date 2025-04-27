@@ -385,7 +385,7 @@ export default function Home() {
 
                         return (
                             <div key={apartment.id} style={styles.card}>
-                              <Link href={`/apartments/${apartment.id}`} style={{ textDecoration: 'none' }}>
+                              <Link href={`/details/${apartment.id}`} style={{ textDecoration: 'none' }}>
                                 <div
                                     style={{
                                       ...styles.cardImage,
@@ -436,11 +436,6 @@ export default function Home() {
                 </div>
             )}
 
-            <div style={styles.centeredContent}>
-              <Link href="/apartments" style={{ ...styles.button, textDecoration: 'none' }}>
-                Alle Wohnungen anzeigen
-              </Link>
-            </div>
           </div>
         </section>
 
@@ -489,9 +484,6 @@ export default function Home() {
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
               <Link href="/register" style={{ ...styles.whiteButton, textDecoration: 'none' }}>
                 Jetzt registrieren
-              </Link>
-              <Link href="/apartments" style={{ ...styles.button, backgroundColor: 'transparent', border: '2px solid white', textDecoration: 'none' }}>
-                Unterkünfte entdecken
               </Link>
             </div>
           </div>

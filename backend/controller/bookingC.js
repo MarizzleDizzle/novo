@@ -16,16 +16,47 @@ function runAsync(sql, params) {
 exports.createBooking = async (req, res) => {
     const { apartmentId, userId, startDate, endDate, guests } = req.body;
 
+    // Datumskonvertierung und Validierung
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (start >= end) {
+        return res.status(400).json({ error: "Ungültiges Datumsintervall" });
+    }
+
     try {
+        // Überlappende Buchungen prüfen
+        const overlaps = await new Promise((resolve, reject) => {
+            db.all(
+                `SELECT id FROM bookings 
+                WHERE apartment_id = ? 
+                AND start_date < ? 
+                AND end_date > ?`,
+                [apartmentId, endDate, startDate],
+                (err, rows) => {
+                    if (err) reject(err);
+                    resolve(rows.length > 0);
+                }
+            );
+        });
+
+        if (overlaps) {
+            return res.status(400).json({
+                error: "Das Objekt ist in diesem Zeitraum nicht verfügbar."
+            });
+        }
+
+        // Neue Buchung erstellen
         await runAsync(
-            `INSERT INTO bookings (apartment_id, user_id, start_date, end_date, guests)
-       VALUES (?, ?, ?, ?, ?)`,
+            `INSERT INTO bookings
+                 (apartment_id, user_id, start_date, end_date, guests)
+             VALUES (?, ?, ?, ?, ?)`,
             [apartmentId, userId, startDate, endDate, guests]
         );
-        res.json({ message: 'Buchung erfolgreich erstellt!' });
+        res.json({ message: "Buchung erfolgreich!" });
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Fehler beim Erstellen der Buchung' });
+        console.error("Fehler:", error);
+        res.status(500).json({ error: "Serverfehler bei der Buchung" });
     }
 };
 
@@ -52,4 +83,23 @@ exports.getBookingById = (req, res) => {
             res.json(row);
         }
     });
+};
+
+// Buchungen nach User ID abrufen
+exports.getBookingsByUserId = (req, res) => {
+    const userId = req.params.userId;
+    db.all(
+        `SELECT bookings.*, apartments.title AS apartment_title
+         FROM bookings
+                  LEFT JOIN apartments ON bookings.apartment_id = apartments.id
+         WHERE bookings.user_id = ?`,
+        [userId],
+        (err, rows) => {
+            if (err) {
+                console.error("Datenbankfehler:", err.message);
+                return res.status(500).json({ error: 'Datenbankfehler' });
+            }
+            res.json(rows);
+        }
+    );
 };

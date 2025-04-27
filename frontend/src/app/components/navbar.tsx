@@ -60,15 +60,6 @@ const Navbar: FC = () => {
             Movo
           </Link>
           <div style={styles.menu}>
-            <Link href="/" style={styles.menuItem}>
-              Start
-            </Link>
-            <Link href="/apartments" style={styles.menuItem}>
-              Ferienwohnungen
-            </Link>
-            <Link href="/become-host" style={styles.menuItem}>
-              Anbieter werden
-            </Link>
           </div>
           <div style={styles.flexRow}>
             {user ? (

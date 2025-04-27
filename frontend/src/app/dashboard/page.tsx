@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../lib/auth";
 import Link from "next/link";
 
@@ -8,6 +8,8 @@ const DashboardPage = () => {
     const { user } = useAuth();
     const [showProfileForm, setShowProfileForm] = useState(false);
     const [showPasswordForm, setShowPasswordForm] = useState(false);
+    const [bookings, setBookings] = useState(null);
+    const [loadingBookings, setLoadingBookings] = useState(true);
     const [profileData, setProfileData] = useState({
         name: user?.name || "",
         email: user?.email || ""
@@ -23,6 +25,17 @@ const DashboardPage = () => {
 
     // Styles
     const styles = {
+        bookingCard: {
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '16px',
+            marginBottom: '16px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+            transition: 'transform 0.2s',
+            ':hover': {
+                transform: 'translateY(-2px)'
+            }
+        },
         pageContainer: {
             minHeight: '100vh',
             backgroundColor: '#F9FAFB', // gray-50
@@ -252,6 +265,25 @@ const DashboardPage = () => {
             setPasswordData((prev) => ({ ...prev, [name]: value }));
         }
     };
+
+    useEffect(() => {
+        if (user?.userID) {
+            fetch(`http://localhost:5022/api/bookings/user/${user.userID}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Fehler beim Laden der Buchungen');
+                    return response.json();
+                })
+                .then(data => {
+                    setBookings(data);
+                    setLoadingBookings(false);
+                })
+                .catch(error => {
+                    console.error(error);
+                    setError('Fehler beim Laden der Buchungen');
+                    setLoadingBookings(false);
+                });
+        }
+    }, [user]);
 
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
@@ -664,15 +696,6 @@ const DashboardPage = () => {
                                 ) : (
                                     <div>
                                         <h3 style={styles.sectionTitle}>Ihre Buchungen</h3>
-                                        <Link
-                                            href="/bookings"
-                                            style={styles.actionLink}
-                                        >
-                                            <svg style={{ width: '20px', height: '20px', marginRight: '8px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                            </svg>
-                                            Neue Buchung erstellen
-                                        </Link>
                                         <div style={styles.infoBox}>
                                             Keine aktuellen Buchungen vorhanden.
                                         </div>
