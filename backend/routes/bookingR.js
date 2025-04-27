@@ -11,4 +11,6 @@ router.get('/', bookingController.getAllBookings);
 // Einzelne Buchung abrufen
 router.get('/:id', bookingController.getBookingById);
 
+router.get('/user/:userId', bookingController.getBookingsByUserId);
+
 module.exports = router;
