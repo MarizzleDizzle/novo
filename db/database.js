@@ -67,10 +67,22 @@ async function initializeDatabase() {
 
   await runAsync(`CREATE TABLE IF NOT EXISTS apartments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
+    title TEXT,
     description TEXT,
-    location TEXT,
-    price_per_night REAL
+    address TEXT,
+    city TEXT,
+    zip TEXT,
+    country TEXT,
+    guests INTEGER,
+    bedrooms INTEGER,
+    beds INTEGER,
+    bathrooms INTEGER,
+    size INTEGER,
+    price INTEGER,
+    min_stay INTEGER,
+    available_now INTEGER DEFAULT 1,
+    available_from TEXT,
+    amenities TEXT
   )`);
 
   await runAsync(`CREATE TABLE IF NOT EXISTS bookings (
@@ -82,27 +94,6 @@ async function initializeDatabase() {
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (apartment_id) REFERENCES apartments(id)
   )`);
-
-  // 2) Neue Spalten für apartments
-  const newCols = [
-    { name: 'address',       type: 'TEXT'    },
-    { name: 'city',          type: 'TEXT'    },
-    { name: 'zip',           type: 'TEXT'    },
-    { name: 'country',       type: 'TEXT'    },
-    { name: 'guests',        type: 'INTEGER' },
-    { name: 'bedrooms',      type: 'INTEGER' },
-    { name: 'beds',          type: 'INTEGER' },
-    { name: 'bathrooms',     type: 'INTEGER' },
-    { name: 'size',          type: 'INTEGER' },
-    { name: 'min_stay',      type: 'INTEGER' },
-    { name: 'amenities',     type: 'TEXT'    },
-    { name: 'available_now', type: 'BOOLEAN DEFAULT 1' },
-    { name: 'available_from',type: 'TEXT'    },
-  ];
-
-  for (const colDef of newCols) {
-    await addColumnIfNotExists('apartments', colDef);
-  }
 }
 
 initializeDatabase().catch(err => {

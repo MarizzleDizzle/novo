@@ -1,305 +1,185 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wohnung hinzufügen | Movo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="index.html">Movo</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="index.html">Start</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="host-apartments.html">Meine Wohnungen</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="host-bookings.html">Buchungen</a>
-          </li>
-        </ul>
-        <div class="dropdown">
-          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="hostDropdown" data-bs-toggle="dropdown">
-            <img src="https://via.placeholder.com/40" alt="Profilbild" class="rounded-circle me-2">
-            <span>Anbieter Name</span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="host-dashboard.html"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
-            <li><a class="dropdown-item" href="host-apartments.html"><i class="fas fa-home me-2"></i> Meine Wohnungen</a></li>
-            <li><a class="dropdown-item" href="host-bookings.html"><i class="fas fa-calendar-alt me-2"></i> Buchungen</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Abmelden</a></li>
-          </ul>
+
+<div class="container py-5">
+  <h1 class="mb-4">Neue Wohnung hinzufügen</h1>
+
+  <form id="addApartmentForm" novalidate method="POST" enctype="multipart/form-data">
+    <div class="row g-3">
+      <!-- Grundinformationen -->
+      <div class="col-md-6">
+        <label for="apartmentTitle" class="form-label">Titel*</label>
+        <input type="text" class="form-control" id="apartmentTitle" name="title" required>
+      </div>
+      <div class="col-md-6">
+        <label for="apartmentDescription" class="form-label">Beschreibung*</label>
+        <textarea class="form-control" id="apartmentDescription" name="description" required></textarea>
+      </div>
+      <div class="col-md-6">
+        <label for="apartmentAddress" class="form-label">Adresse*</label>
+        <input type="text" class="form-control" id="apartmentAddress" name="address" required>
+      </div>
+      <div class="col-md-6">
+        <label for="apartmentCity" class="form-label">Stadt*</label>
+        <input type="text" class="form-control" id="apartmentCity" name="city" required>
+      </div>
+
+      <!-- Weitere Details -->
+      <div class="col-md-4">
+        <label for="apartmentZip" class="form-label">PLZ*</label>
+        <input type="text" class="form-control" id="apartmentZip" name="zip" required>
+      </div>
+      <div class="col-md-4">
+        <label for="apartmentCountry" class="form-label">Land*</label>
+        <select class="form-select" id="apartmentCountry" name="country" required>
+          <option value="DE" selected>Deutschland</option>
+          <option value="AT">Österreich</option>
+          <option value="CH">Schweiz</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="apartmentGuests" class="form-label">Gäste*</label>
+        <input type="number" class="form-control" id="apartmentGuests" name="guests" required>
+      </div>
+
+      <div class="col-md-3">
+        <label for="apartmentBedrooms" class="form-label">Schlafzimmer</label>
+        <input type="number" class="form-control" id="apartmentBedrooms" name="bedrooms">
+      </div>
+      <div class="col-md-3">
+        <label for="apartmentBeds" class="form-label">Betten</label>
+        <input type="number" class="form-control" id="apartmentBeds" name="beds">
+      </div>
+      <div class="col-md-3">
+        <label for="apartmentBathrooms" class="form-label">Badezimmer</label>
+        <input type="number" class="form-control" id="apartmentBathrooms" name="bathrooms">
+      </div>
+      <div class="col-md-3">
+        <label for="apartmentSize" class="form-label">Größe (m²)</label>
+        <input type="number" class="form-control" id="apartmentSize" name="size">
+      </div>
+
+      <!-- Preis -->
+      <div class="col-md-6">
+        <label for="apartmentPrice" class="form-label">Preis pro Nacht (€)*</label>
+        <input type="number" class="form-control" id="apartmentPrice" name="price" required>
+      </div>
+      <div class="col-md-6">
+        <label for="apartmentMinStay" class="form-label">Mindestaufenthalt (Nächte)</label>
+        <input type="number" class="form-control" id="apartmentMinStay" name="minStay">
+      </div>
+
+      <!-- Verfügbarkeit -->
+      <div class="col-md-12">
+        <label class="form-label">Verfügbarkeit</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="availableNow" name="availableNow" checked>
+          <label class="form-check-label" for="availableNow">Sofort verfügbar</label>
         </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="availableLater" name="availableLater">
+          <label class="form-check-label" for="availableLater">
+            Verfügbar ab:
+            <input type="date" class="form-control mt-2" id="availableFromDate" name="availableFromDate" disabled>
+          </label>
+        </div>
+      </div>
+
+      <!-- Ausstattung -->
+      <div class="col-md-6">
+        <label class="form-label">Ausstattung</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="wifiCheck" name="wifi">
+          <label class="form-check-label" for="wifiCheck">WLAN</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="kitchenCheck" name="kitchen">
+          <label class="form-check-label" for="kitchenCheck">Küche</label>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="parkingCheck" name="parking">
+          <label class="form-check-label" for="parkingCheck">Parkplatz</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="tvCheck" name="tv">
+          <label class="form-check-label" for="tvCheck">TV</label>
+        </div>
+      </div>
+
+      <!-- Bilder Upload -->
+      <div class="col-md-12">
+        <label for="apartmentImages" class="form-label">Bilder hochladen*</label>
+        <input class="form-control" type="file" id="apartmentImages" name="images" multiple accept="image/*">
       </div>
     </div>
-  </nav>
 
-  <div class="container-fluid py-4">
-    <div class="row">
-      <div class="col-lg-3 mb-4">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex flex-column align-items-center text-center mb-4">
-              <img src="https://via.placeholder.com/150" alt="Profilbild" class="rounded-circle mb-3" width="100">
-              <h5>Anbieter Name</h5>
-              <p class="text-muted mb-1">Anbieter seit: Jan 2022</p>
-              <div class="rating mb-2">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star-half-alt"></i>
-                <span class="ms-1">4.7</span>
-              </div>
-              <a href="host-profile.html" class="btn btn-sm btn-outline-primary">Profil bearbeiten</a>
-            </div>
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <a class="nav-link" href="host-dashboard.html">
-                  <i class="fas fa-tachometer-alt me-2"></i> Übersicht
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="host-apartments.html">
-                  <i class="fas fa-home me-2"></i> Meine Wohnungen
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="host-bookings.html">
-                  <i class="fas fa-calendar-alt me-2"></i> Buchungen
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="host-settings.html">
-                  <i class="fas fa-cog me-2"></i> Einstellungen
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-lg-9">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2>Neue Wohnung hinzufügen</h2>
-          <a href="host-apartments.html" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i> Zurück
-          </a>
-        </div>
-        
-        <div class="card">
-          <div class="card-body">
-            <form id="addApartmentForm" novalidate>
-              <div class="row mb-4">
-                <div class="col-md-6">
-                  <h5 class="mb-3">Grundinformationen</h5>
-                  <div class="mb-3">
-                    <label for="apartmentTitle" class="form-label">Titel*</label>
-                    <input type="text" class="form-control" id="apartmentTitle" required>
-                    <div class="invalid-feedback">Bitte Titel eingeben</div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="apartmentType" class="form-label">Typ*</label>
-                    <select class="form-select" id="apartmentType" required>
-                      <option value="" disabled selected>Wählen Sie</option>
-                      <option value="apartment">Wohnung</option>
-                      <option value="house">Haus</option>
-                      <option value="villa">Villa</option>
-                    </select>
-                    <div class="invalid-feedback">Bitte Typ auswählen</div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="apartmentDescription" class="form-label">Beschreibung*</label>
-                    <textarea class="form-control" id="apartmentDescription" rows="4" required></textarea>
-                    <div class="invalid-feedback">Bitte Beschreibung eingeben</div>
-                  </div>
-                </div>
-                
-                <div class="col-md-6">
-                  <h5 class="mb-3">Standort</h5>
-                  <div class="mb-3">
-                    <label for="apartmentAddress" class="form-label">Adresse*</label>
-                    <input type="text" class="form-control" id="apartmentAddress" required>
-                    <div class="invalid-feedback">Bitte Adresse eingeben</div>
-                  </div>
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="apartmentCity" class="form-label">Stadt*</label>
-                      <input type="text" class="form-control" id="apartmentCity" required>
-                      <div class="invalid-feedback">Bitte Stadt eingeben</div>
-                    </div>
-                    <div class="col-md-6">
-                      <label for="apartmentZip" class="form-label">PLZ*</label>
-                      <input type="text" class="form-control" id="apartmentZip" required>
-                      <div class="invalid-feedback">Bitte PLZ eingeben</div>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="apartmentCountry" class="form-label">Land*</label>
-                    <select class="form-select" id="apartmentCountry" required>
-                      <option value="DE" selected>Deutschland</option>
-                      <option value="AT">Österreich</option>
-                      <option value="CH">Schweiz</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Karte</label>
-                    <div id="mapPreview" class="map-preview">
-                      <span class="text-muted">Standort auswählen</span>
-                    </div>
-                    <input type="hidden" id="apartmentLat">
-                    <input type="hidden" id="apartmentLng">
-                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="openMapBtn">
-                      <i class="fas fa-map-marker-alt me-1"></i> Standort wählen
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              <hr class="my-4">
-              
-              <div class="row mb-4">
-                <div class="col-md-6">
-                  <h5 class="mb-3">Ausstattung</h5>
-                  <div class="mb-3">
-                    <div class="row g-2">
-                      <div class="col-4">
-                        <label for="apartmentGuests" class="form-label">Gäste*</label>
-                        <input type="number" class="form-control" id="apartmentGuests" min="1" value="2" required>
-                      </div>
-                      <div class="col-4">
-                        <label for="apartmentBedrooms" class="form-label">Schlafzimmer</label>
-                        <input type="number" class="form-control" id="apartmentBedrooms" min="0" value="1">
-                      </div>
-                      <div class="col-4">
-                        <label for="apartmentBeds" class="form-label">Betten</label>
-                        <input type="number" class="form-control" id="apartmentBeds" min="1" value="1">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Ausstattung</label>
-                    <div class="amenities-container">
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="wifiCheck" checked>
-                            <label class="form-check-label" for="wifiCheck"><i class="fas fa-wifi me-1"></i> WLAN</label>
-                          </div>
-                          <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="kitchenCheck" checked>
-                            <label class="form-check-label" for="kitchenCheck"><i class="fas fa-utensils me-1"></i> Küche</label>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="tvCheck">
-                            <label class="form-check-label" for="tvCheck"><i class="fas fa-tv me-1"></i> TV</label>
-                          </div>
-                          <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="parkingCheck">
-                            <label class="form-check-label" for="parkingCheck"><i class="fas fa-parking me-1"></i> Parkplatz</label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="col-md-6">
-                  <h5 class="mb-3">Preise & Verfügbarkeit</h5>
-                  <div class="mb-3">
-                    <label for="apartmentPrice" class="form-label">Preis/Nacht (€)*</label>
-                    <div class="input-group">
-                      <input type="number" class="form-control" id="apartmentPrice" min="1" required>
-                      <span class="input-group-text">€</span>
-                    </div>
-                    <div class="invalid-feedback">Bitte Preis eingeben</div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="apartmentMinStay" class="form-label">Mindestaufenthalt (Nächte)</label>
-                    <input type="number" class="form-control" id="apartmentMinStay" min="1" value="1">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Verfügbarkeit</label>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="availability" id="availableNow" checked>
-                      <label class="form-check-label" for="availableNow">Sofort buchbar</label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="availability" id="availableLater">
-                      <label class="form-check-label" for="availableLater">
-                        Verfügbar ab: <input type="date" class="form-control d-inline-block ms-2" style="width: auto;" id="availableFromDate" disabled>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="apartmentImages" class="form-label">Bilder*</label>
-                    <input class="form-control" type="file" id="apartmentImages" multiple accept="image/*" required>
-                    <div class="invalid-feedback">Bilder erforderlich</div>
-                    <div id="imagePreview" class="mt-2"></div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="termsCheck" required>
-                  <label class="form-check-label" for="termsCheck">
-                    Ich akzeptiere die <a href="#">AGB</a>*
-                  </label>
-                  <div class="invalid-feedback">Bitte akzeptieren</div>
-                </div>
-                <div>
-                  <button type="button" class="btn btn-outline-secondary me-2" onclick="window.location.href='host-apartments.html'">
-                    Abbrechen
-                  </button>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i> Speichern
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+    <div class="mt-4">
+      <button type="submit" class="btn btn-primary">Speichern</button>
     </div>
-  </div>
 
-  <div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Standort auswählen</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div id="map" style="height: 400px;"></div>
-          <div class="mt-3">
-            <input type="text" class="form-control" id="mapSearch" placeholder="Adresse suchen...">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
-          <button type="button" class="btn btn-primary" id="confirmLocationBtn">Bestätigen</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  </form>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  <script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Hier deine direkte Upload-Logik -->
+<script>
+async function initAddApartmentForm() {
+  const form = document.getElementById('addApartmentForm');
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    if (!form.checkValidity()) {
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch('/api/apartments', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Fehler beim Speichern');
+      }
+
+      const result = await response.json();
+      alert(result.message);
+      window.location.href = 'host-dashboard.html'; // Oder deine Wunschseite
+    } catch (error) {
+      console.error('Fehler:', error);
+      alert('Fehler: ' + error.message);
+    }
+  });
+
+  // Verfügbarkeit später aktivieren
+  const availableLater = document.getElementById('availableLater');
+  const availableFromDate = document.getElementById('availableFromDate');
+
+  availableLater.addEventListener('change', function() {
+    availableFromDate.disabled = !this.checked;
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initAddApartmentForm);
+</script>
+
 </body>
 </html>

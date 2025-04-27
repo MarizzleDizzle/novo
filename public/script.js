@@ -1,174 +1,140 @@
-// Sample apartments data (falls benötigt für Fallback)
-const sampleApartments = [
-  {
-    id: 1,
-    name: "Moderne Wohnung in Berlin-Mitte",
-    description: "Helle 2-Zimmer-Wohnung in bester Lage",
-    price_per_night: 89,
-    location: "Berlin, Deutschland",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    features: ["WLAN", "Küche", "TV"]
-  }
-];
-
-// Hauptinitialisierung
-document.addEventListener('DOMContentLoaded', function() {
-  if (document.getElementById('addApartmentForm')) {
-    initAddApartmentForm();
-  }
-  // Weitere Initialisierungen hier einfügen...
-});
-
-// Wohnung hinzufügen Formular
+// Apartments hinzufügen (mit Bild-Upload)
 async function initAddApartmentForm() {
   const form = document.getElementById('addApartmentForm');
-  
-  form.addEventListener('submit', async function(e) {
+  form.setAttribute('enctype', 'multipart/form-data');
+
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
-    
+
     if (!form.checkValidity()) {
       e.stopPropagation();
       form.classList.add('was-validated');
       return;
     }
-    
+
     const formData = new FormData(form);
-    const apartmentData = {
-      title: formData.get('title'),
-      description: formData.get('description'),
-      address: formData.get('address'),
-      city: formData.get('city'),
-      zip: formData.get('zip'),
-      country: formData.get('country'),
-      guests: formData.get('guests'),
-      bedrooms: formData.get('bedrooms'),
-      beds: formData.get('beds'),
-      bathrooms: formData.get('bathrooms'),
-      size: formData.get('size') || null,
-      price: formData.get('price'),
-      minStay: formData.get('minStay'),
-      availableNow: document.getElementById('availableNow').checked ? 1 : 0,
-      availableFrom: document.getElementById('availableFromDate').value || null,
-      wifi: document.getElementById('wifiCheck').checked,
-      kitchen: document.getElementById('kitchenCheck').checked,
-      parking: document.getElementById('parkingCheck').checked,
-      tv: document.getElementById('tvCheck').checked
-    };
 
     try {
       const response = await fetch('/api/apartments', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(apartmentData)
+        body: formData
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Fehler beim Speichern');
       }
-      
+
       const result = await response.json();
       alert(result.message);
-      window.location.href = 'host-apartments.html';
+      window.location.href = 'host-dashboard.html';
     } catch (error) {
       console.error('Fehler:', error);
       alert('Fehler: ' + error.message);
     }
   });
+}
 
-  // Bildervorschau
-  document.getElementById('apartmentImages').addEventListener('change', function(e) {
-    const preview = document.getElementById('imagePreview');
-    preview.innerHTML = '';
-    
-    Array.from(this.files).forEach(file => {
-      if (!file.type.startsWith('image/')) return;
-      
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.className = 'img-thumbnail';
-        preview.appendChild(img);
-      };
-      reader.readAsDataURL(file);
+// Apartments laden und auf der Übersichtsseite anzeigen
+async function loadApartments() {
+  const container = document.getElementById('apartments-container');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  try {
+    const response = await fetch('/api/apartments');
+    const apartments = await response.json();
+
+    apartments.forEach(apartment => {
+      const card = document.createElement('div');
+      card.className = 'col-md-4 mb-4';
+
+      const firstImage = apartment.images ? JSON.parse(apartment.images)[0] : null;
+      const imageUrl = firstImage ? `/uploads/${firstImage}` : 'https://via.placeholder.com/400x250';
+
+      card.innerHTML = `
+        <div class="card h-100">
+          <img src="${imageUrl}" class="card-img-top" alt="Apartment Bild">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">${apartment.title || 'Kein Titel'}</h5>
+            <p class="card-text">${apartment.city || ''}</p>
+            <p class="card-text"><strong>Preis:</strong> ${apartment.price || 0} € / Nacht</p>
+            <a href="apartmentDetails.html?id=${apartment.id}" class="btn btn-primary mt-auto">Details</a>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
     });
-  });
 
-  // Verfügbarkeit umschalten
-  document.getElementById('availableLater').addEventListener('change', function() {
-    document.getElementById('availableFromDate').disabled = !this.checked;
-  });
-
-  // Kartenmodal (falls benötigt)
-  if (document.getElementById('openMapBtn')) {
-    document.getElementById('openMapBtn').addEventListener('click', initMapModal);
+  } catch (error) {
+    console.error('Fehler beim Laden der Apartments:', error);
+    container.innerHTML = '<p>Fehler beim Laden der Apartments.</p>';
   }
 }
 
-// Kartenmodal Initialisierung
-function initMapModal() {
-  const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
-  const map = L.map('map').setView([51.1657, 10.4515], 6);
-  
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-  }).addTo(map);
-  
-  let marker;
-  
-  // Suchfunktionalität
-  document.getElementById('mapSearch').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      const query = this.value;
-      if (query.length > 2) {
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`)
-          .then(response => response.json())
-          .then(data => {
-            if (data.length > 0) {
-              const lat = parseFloat(data[0].lat);
-              const lon = parseFloat(data[0].lon);
-              map.setView([lat, lon], 15);
-              
-              if (marker) marker.setLatLng([lat, lon]);
-              else marker = L.marker([lat, lon]).addTo(map);
-            }
-          });
+// Einzelnes Apartment laden für die Detailseite
+async function loadApartmentDetails() {
+  const params = new URLSearchParams(window.location.search);
+  const apartmentId = params.get('id');
+
+  if (!apartmentId) return;
+
+  try {
+    const response = await fetch(`/api/apartments/${apartmentId}`);
+    const apartment = await response.json();
+
+    if (!apartment) {
+      console.error('Apartment nicht gefunden');
+      return;
+    }
+
+    document.querySelector('.card-title').textContent = apartment.title || 'Titel';
+    document.querySelector('.card-body p').textContent = apartment.description || 'Beschreibung folgt.';
+    document.getElementById('price-per-night').textContent = apartment.price || '-';
+
+    const carouselInner = document.querySelector('.carousel-inner');
+    carouselInner.innerHTML = '';
+
+    const images = apartment.images ? JSON.parse(apartment.images) : [];
+
+    images.forEach((imgName, index) => {
+      const div = document.createElement('div');
+      div.className = `carousel-item ${index === 0 ? 'active' : ''}`;
+      div.innerHTML = `<img src="/uploads/${imgName}" class="d-block w-100" alt="Bild">`;
+      carouselInner.appendChild(div);
+    });
+
+    // Ausstattung laden
+    const featuresContainer = document.getElementById('features-container');
+    featuresContainer.innerHTML = '';
+    const amenities = apartment.amenities ? JSON.parse(apartment.amenities) : {};
+
+    Object.keys(amenities).forEach(feature => {
+      if (amenities[feature]) {
+        const div = document.createElement('div');
+        div.className = 'col-md-6';
+        div.innerHTML = `<i class="fas fa-check text-success"></i> ${feature}`;
+        featuresContainer.appendChild(div);
       }
-    }
-  });
-  
-  // Kartenklick-Handler
-  map.on('click', function(e) {
-    if (marker) marker.setLatLng(e.latlng);
-    else marker = L.marker(e.latlng).addTo(map);
-  });
-  
-  // Standort bestätigen
-  document.getElementById('confirmLocationBtn').addEventListener('click', function() {
-    if (marker) {
-      const latLng = marker.getLatLng();
-      document.getElementById('apartmentLat').value = latLng.lat;
-      document.getElementById('apartmentLng').value = latLng.lng;
-      
-      const preview = document.getElementById('mapPreview');
-      preview.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i>Standort ausgewählt</span>`;
-    }
-    mapModal.hide();
-  });
-  
-  mapModal.show();
-}
+    });
 
-// Hilfsfunktionen
-function getCountryName(code) {
-  switch(code) {
-    case 'DE': return 'Deutschland';
-    case 'AT': return 'Österreich';
-    case 'CH': return 'Schweiz';
-    default: return '';
+  } catch (error) {
+    console.error('Fehler beim Laden der Apartmentdetails:', error);
   }
 }
+
+// Seite fertig geladen
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (document.getElementById('addApartmentForm')) {
+    initAddApartmentForm();
+  }
+  if (document.getElementById('apartments-container')) {
+    loadApartments();
+  }
+  if (document.getElementById('apartmentCarousel')) {
+    loadApartmentDetails();
+  }
+});

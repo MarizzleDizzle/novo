@@ -36,43 +36,13 @@
     </div>
   </nav>
 
-  <!-- Breadcrumb -->
-  <div class="container mt-3">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.html"><i class="fas fa-home"></i></a></li>
-        <li class="breadcrumb-item active" aria-current="page">Ferienwohnungen</li>
-      </ol>
-    </nav>
-  </div>
-
-  <!-- Page Header -->
+  <!-- Header -->
   <section class="py-4 bg-light">
     <div class="container">
       <div class="row">
         <div class="col-md-6">
           <h1>Ferienwohnungen</h1>
           <p class="lead">Finde dein perfektes Urlaubszuhause</p>
-        </div>
-        <div class="col-md-6">
-          <div class="search-box bg-white p-3 rounded shadow">
-            <form class="row g-2">
-              <div class="col-md-5">
-                <input type="text" class="form-control" placeholder="Reiseziel eingeben..." id="searchLocation">
-              </div>
-              <div class="col-md-3">
-                <input type="date" class="form-control" placeholder="Anreise" id="checkinDate">
-              </div>
-              <div class="col-md-3">
-                <input type="date" class="form-control" placeholder="Abreise" id="checkoutDate">
-              </div>
-              <div class="col-md-1">
-                <button type="submit" class="btn btn-accent w-100">
-                  <i class="fas fa-search"></i>
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
       </div>
     </div>
@@ -81,77 +51,9 @@
   <!-- Apartments List -->
   <section class="py-5">
     <div class="container">
-      <div class="row mb-4">
-        <div class="col-md-6">
-          <h5 class="mb-0" id="apartmentsCount">24 Ferienwohnungen verfügbar</h5>
-        </div>
-        <div class="col-md-6 text-md-end">
-          <div class="dropdown d-inline-block me-2">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
-              Sortieren nach: Empfohlen
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item sort-option" href="#" data-sort="recommended">Empfohlen</a></li>
-              <li><a class="dropdown-item sort-option" href="#" data-sort="price-asc">Preis: Niedrig zu Hoch</a></li>
-              <li><a class="dropdown-item sort-option" href="#" data-sort="price-desc">Preis: Hoch zu Niedrig</a></li>
-              <li><a class="dropdown-item sort-option" href="#" data-sort="rating">Beste Bewertung</a></li>
-            </ul>
-          </div>
-          <div class="dropdown d-inline-block">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
-              Filter
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end p-3" style="width: 300px;">
-              <h6 class="dropdown-header">Preisbereich</h6>
-              <div class="mb-3">
-                <input type="range" class="form-range" min="0" max="500" step="10" id="priceRange">
-                <div class="d-flex justify-content-between">
-                  <small>0€</small>
-                  <small>250€</small>
-                  <small>500€</small>
-                </div>
-              </div>
-              <h6 class="dropdown-header">Ausstattung</h6>
-              <div class="form-check">
-                <input class="form-check-input filter-option" type="checkbox" id="wifiFilter" data-filter="wifi">
-                <label class="form-check-label" for="wifiFilter">WLAN</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input filter-option" type="checkbox" id="kitchenFilter" data-filter="kitchen">
-                <label class="form-check-label" for="kitchenFilter">Küche</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input filter-option" type="checkbox" id="parkingFilter" data-filter="parking">
-                <label class="form-check-label" for="parkingFilter">Parkplatz</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input filter-option" type="checkbox" id="poolFilter" data-filter="pool">
-                <label class="form-check-label" for="poolFilter">Pool</label>
-              </div>
-              <div class="mt-2">
-                <button class="btn btn-primary btn-sm" id="applyFilters">Filter anwenden</button>
-              </div>
-            </ul>
-          </div>
-        </div>
-      </div>
-      
       <div class="row" id="apartments-container">
-        <!-- Apartments will be loaded here by script.js -->
+        <!-- Apartments werden hier geladen -->
       </div>
-      
-      <!-- Pagination -->
-      <nav class="mt-5">
-        <ul class="pagination justify-content-center" id="pagination">
-          <li class="page-item disabled">
-            <a class="page-link" href="#" tabindex="-1" id="prevPage">Zurück</a>
-          </li>
-          <!-- Page numbers will be added here by script.js -->
-          <li class="page-item">
-            <a class="page-link" href="#" id="nextPage">Weiter</a>
-          </li>
-        </ul>
-      </nav>
     </div>
   </section>
 
@@ -175,9 +77,9 @@
         <div class="col-md-3 mb-4">
           <h5>Rechtliches</h5>
           <ul class="list-unstyled">
-            <li><a href="#impressum" class="text-white">Impressum</a></li>
-            <li><a href="datenschutz.html" class="text-white">Datenschutz</a></li>
-            <li><a href="agb.html" class="text-white">AGB</a></li>
+            <li><a href="#" class="text-white">Impressum</a></li>
+            <li><a href="#" class="text-white">Datenschutz</a></li>
+            <li><a href="#" class="text-white">AGB</a></li>
           </ul>
         </div>
         <div class="col-md-3 mb-4">
