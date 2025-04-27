@@ -1,51 +1,68 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const db = require('./db/database');
 const bcrypt = require('bcrypt');
-const app = express();
-const port = 3000;
+const multer = require('multer');
+const cors = require('cors');
 
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Registrierung eines neuen Benutzers
-app.post('/api/register', async (req, res) => {
-  const { name, email, password, role } = req.body;
-
-  if (!['customer', 'provider', 'admin'].includes(role)) {
-    return res.status(400).json({ error: 'Ungültige Rolle' });
+// Bild-Upload Konfiguration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, 'public', 'uploads'));
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
   }
+});
+const upload = multer({ storage });
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+// Hilfsfunktion für Datenbank-Initialisierung
+async function initializeDatabase() {
+  const alterQueries = [
+    "ALTER TABLE apartments ADD COLUMN address TEXT",
+    "ALTER TABLE apartments ADD COLUMN city TEXT",
+    // ... (alle anderen ALTER TABLE-Anweisungen von oben)
+  ];
 
-  const query = `INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)`;
-  db.run(query, [name, email, hashedPassword, role], function (err) {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+  for (const query of alterQueries) {
+    try {
+      await db.run(query);
+    } catch (e) {
+      // Spalte existiert wahrscheinlich bereits
     }
-    res.json({ message: 'Registrierung erfolgreich', userId: this.lastID });
-  });
+  }
+}
+
+// --- DEINE BESTEHENDEN ROUTES --- //
+app.post('/api/register', async (req, res) => {
+  // Dein bestehender Registrierungs-Code
 });
 
-// Login
 app.post('/api/login', (req, res) => {
-  const { email, password } = req.body;
-
-  const query = `SELECT * FROM users WHERE email = ?`;
-  db.get(query, [email], async (err, user) => {
-    if (err || !user) {
-      return res.status(400).json({ error: 'Nutzer nicht gefunden' });
-    }
-
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res.status(400).json({ error: 'Falsches Passwort' });
-    }
-
-    res.json({ message: 'Login erfolgreich', user });
-  });
+  // Dein bestehender Login-Code
 });
 
-app.listen(port, () => {
-  console.log(`Server läuft auf http://localhost:${port}`);
+// --- NEUE WOHNUNGS-ROUTES --- //
+app.post('/api/apartments', upload.array('images'), (req, res) => {
+  // Der neue Wohnungserstellungs-Code von oben
+});
+
+app.get('/api/apartments', (req, res) => {
+  // Der neue Wohnungen-abrufen-Code von oben
+});
+
+// Server starten
+initializeDatabase().then(() => {
+  app.listen(port, () => {
+    console.log(`Server läuft auf http://localhost:${port}`);
+  });
 });
