@@ -8,7 +8,7 @@ const cors = require('cors');
 const fs = require('fs');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5022;
 
 // CORS erlauben
 app.use(cors());
@@ -26,21 +26,6 @@ const db = new sqlite3.Database(dbPath, err => {
   if (err) console.error('Fehler beim Verbinden zur Datenbank:', err.message);
   else console.log('✅ Verbindung zur Datenbank erfolgreich.');
 });
-
-// Bild-Upload Konfiguration
-const uploadDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage });
 
 // Hilfsfunktion: run als Promise
 function runAsync(sql, params = []) {
@@ -89,6 +74,7 @@ async function initializeDatabase() {
     apartment_id INTEGER,
     start_date TEXT,
     end_date TEXT,
+    guests INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (apartment_id) REFERENCES apartments(id)
   )`);
@@ -97,55 +83,14 @@ async function initializeDatabase() {
 }
 
 // API Endpunkte
-app.post('/api/apartments', upload.array('images'), async (req, res) => {
-  const { title, description, address, city, zip, country,
-    guests, bedrooms, beds, bathrooms, size, price,
-    minStay, availableNow, availableFrom, wifi, kitchen, parking, tv } = req.body;
+const apartmentRoutes = require('./routes/apartmentR');
+const userRoutes = require('./routes/userR');
+const bookingRoutes = require('./routes/bookingR');
 
-  const imagePaths = req.files.map(file => '/uploads/' + file.filename);
+app.use('/api/apartments', apartmentRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/bookings', bookingRoutes);
 
-  try {
-    await runAsync(
-      `INSERT INTO apartments 
-        (title, description, address, city, zip, country, guests, bedrooms, beds, bathrooms, size, price, min_stay, available_now, available_from, amenities, images)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        title, description, address, city, zip, country,
-        guests, bedrooms, beds, bathrooms, size, price,
-        minStay, availableNow, availableFrom,
-        JSON.stringify({ wifi: wifi === 'true', kitchen: kitchen === 'true', parking: parking === 'true', tv: tv === 'true' }),
-        JSON.stringify(imagePaths)
-      ]
-    );
-    res.json({ message: 'Wohnung erfolgreich hinzugefügt!' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Fehler beim Speichern der Wohnung' });
-  }
-});
-
-app.get('/api/apartments', (req, res) => {
-  db.all(`SELECT * FROM apartments`, [], (err, rows) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Fehler beim Abrufen der Apartments' });
-    } else {
-      res.json(rows);
-    }
-  });
-});
-
-app.get('/api/apartments/:id', (req, res) => {
-  const id = req.params.id;
-  db.get(`SELECT * FROM apartments WHERE id = ?`, [id], (err, row) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Fehler beim Abrufen des Apartments' });
-    } else {
-      res.json(row);
-    }
-  });
-});
 
 // Starte Server
 async function startServer() {
