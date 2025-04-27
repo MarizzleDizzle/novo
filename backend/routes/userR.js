@@ -14,4 +14,13 @@ router.get('/', userController.getAllUsers);
 // Einzelnen Benutzer abrufen
 router.get('/:id', userController.getUserById);
 
+// Benutzerprofil aktualisieren
+router.put('/update', userController.updateUser);
+
+// Passwort ändern
+router.put('/change-password', userController.changePassword);
+
+// Rolle auf Anbieter ändern
+router.put('/become-provider', userController.becomeProvider);
+
 module.exports = router;

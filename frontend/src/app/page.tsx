@@ -293,6 +293,7 @@ export default function Home() {
     return `${baseUrl}/${path}`;
   };
 
+
   return (
       <div>
         <Head>
@@ -300,35 +301,7 @@ export default function Home() {
           <meta name="description" content="Die Plattform für einzigartige Ferienwohnungen und unvergessliche Reiseerlebnisse." />
         </Head>
 
-        {/* Header */}
-        <header style={styles.header}>
-          <div style={styles.container}>
-            <nav style={styles.nav}>
-              <Link href="/" style={styles.logo}>
-                Movo_
-              </Link>
-              <div style={styles.menu}>
-                <Link href="/" style={styles.menuItem}>
-                  Start
-                </Link>
-                <Link href="/apartments" style={styles.menuItem}>
-                  Ferienwohnungen
-                </Link>
-                <Link href="/become-host" style={styles.menuItem}>
-                  Anbieter werden
-                </Link>
-              </div>
-              <div style={styles.flexRow}>
-                <Link href="/login" style={styles.menuItem}>
-                  Login
-                </Link>
-                <Link href="/register" style={{ ...styles.whiteButton, textDecoration: 'none' }}>
-                  Registrieren
-                </Link>
-              </div>
-            </nav>
-          </div>
-        </header>
+
 
         {/* Hero Section */}
         <div style={styles.hero}>

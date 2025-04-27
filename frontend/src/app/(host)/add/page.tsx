@@ -369,45 +369,6 @@ const AddApartment: React.FC = () => {
 
     return (
         <div>
-            {/* Header */}
-            <header style={styles.header}>
-                <div style={styles.container}>
-                    <nav style={styles.nav}>
-                        <Link href="/" style={styles.logo}>
-                            Movo_
-                        </Link>
-                        <div style={styles.menu}>
-                            <Link href="/" style={styles.menuItem}>
-                                Start
-                            </Link>
-                            <Link href="/apartments" style={styles.menuItem}>
-                                Ferienwohnungen
-                            </Link>
-                            <Link href="/become-host" style={styles.menuItem}>
-                                Anbieter werden
-                            </Link>
-                        </div>
-                        <div style={styles.flexRow}>
-                            <Link href="/login" style={styles.menuItem}>
-                                Login
-                            </Link>
-                            <Link href="/register" style={{
-                                backgroundColor: 'white',
-                                color: '#2563eb',
-                                padding: '12px 24px',
-                                borderRadius: '8px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                fontSize: '16px',
-                                fontWeight: '500',
-                                textDecoration: 'none'
-                            }}>
-                                Registrieren
-                            </Link>
-                        </div>
-                    </nav>
-                </div>
-            </header>
 
             {/* Page Header */}
             <div style={styles.pageHeader}>
